@@ -1,0 +1,38 @@
+{
+  "type": "record",
+  "name": "node",
+  "namespace": "spl.data.mycelium.xpath",
+  "doc": "Mycelium xpath node. Metadata is structured, content is opaque bytes with a type tag. Returned by xpath get operations; same shape whether the node is a leaf (file) or branch (directory).",
+  "fields": [
+    {
+      "name": "type",
+      "type": "string",
+      "doc": "Node kind. Currently \"leaf\" or \"branch\"."
+    },
+    {
+      "name": "created",
+      "type": "long",
+      "doc": "Creation time in milliseconds since epoch."
+    },
+    {
+      "name": "modified",
+      "type": "long",
+      "doc": "Last-modified time in milliseconds since epoch."
+    },
+    {
+      "name": "value",
+      "type": {
+        "type": "record",
+        "name": "content",
+        "namespace": "spl.data.mycelium.xpath",
+        "doc": "Node content. Opaque bytes with a type tag. Interpretation is left to the consumer based on type — this keeps the node record schema-agnostic.",
+        "fields": [
+          { "name": "type", "type": "string", "doc": "Content type tag. For leaves: a registered schema name, a file extension, or \"binary\". For branches: \"entries\" (newline-delimited names)." },
+          { "name": "length", "type": "long", "doc": "Byte length of contents." },
+          { "name": "contents", "type": "bytes", "doc": "Raw content bytes. Decoded by the consumer using the type tag." }
+        ]
+      },
+      "doc": "The node's content payload."
+    }
+  ]
+}

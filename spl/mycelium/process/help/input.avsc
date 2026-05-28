@@ -1,0 +1,15 @@
+{
+  "type": "record",
+  "name": "help_input",
+  "namespace": "spl.mycelium.process.help",
+  "doc": "Input shape for one help invocation.",
+  "fields": [
+    {
+      "name": "target",
+      "type": "string",
+      "position": "key",
+      "default": "spl",
+      "doc": "Namespace path to describe (e.g. spl.mycelium.git.commit). Defaults to the spl root. Client-side context aliases resolve before the request is sent."
+    }
+  ]
+}

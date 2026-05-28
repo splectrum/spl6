@@ -1,0 +1,13 @@
+{
+  "type": "record",
+  "name": "descriptor",
+  "namespace": "spl.data.stream",
+  "doc": "Stream descriptor — identifies a record's stream type. Lives as a dedicated header entry (convention: first non-executive header). Enables zero-cost dispatch from namespace path.",
+  "fields": [
+    {
+      "name": "type",
+      "type": "string",
+      "doc": "Stream type as a namespace-dot-path (e.g. spl.mycelium.git.commit). Resolves to a handler at spl/mycelium/git/commit/index.js."
+    }
+  ]
+}

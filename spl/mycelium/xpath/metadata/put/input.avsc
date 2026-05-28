@@ -1,0 +1,19 @@
+{
+  "type": "record",
+  "name": "put_input",
+  "namespace": "spl.mycelium.xpath.metadata.put",
+  "doc": "Input shape for one xpath.metadata.put invocation.",
+  "fields": [
+    {
+      "name": "uri",
+      "type": "string",
+      "position": "key",
+      "doc": "Node URI relative to local root. Non-metadata paths return an error (metadata lens)."
+    },
+    {
+      "name": "content",
+      "type": "bytes",
+      "doc": "Content to write. Encoding respects the node's resolved type."
+    }
+  ]
+}

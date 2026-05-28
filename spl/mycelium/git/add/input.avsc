@@ -1,0 +1,14 @@
+{
+  "type": "record",
+  "name": "add_input",
+  "namespace": "spl.mycelium.git.add",
+  "doc": "Input shape for one git.add invocation.",
+  "fields": [
+    {
+      "name": "paths",
+      "type": "string",
+      "default": ".",
+      "doc": "Space-separated paths to stage. Defaults to \".\" (stage everything in the current working tree)."
+    }
+  ]
+}

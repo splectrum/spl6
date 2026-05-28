@@ -1,0 +1,23 @@
+{
+  "type": "record",
+  "name": "subtree_register_input",
+  "namespace": "spl.mycelium.git.subtree.register",
+  "doc": "Input shape for one git.subtree.register invocation.",
+  "fields": [
+    {
+      "name": "prefix",
+      "type": "string",
+      "doc": "Path prefix relative to repo root (e.g. lib/avsc)."
+    },
+    {
+      "name": "remote",
+      "type": "string",
+      "doc": "Git remote name (e.g. bare-for-pear/avsc)."
+    },
+    {
+      "name": "branch",
+      "type": "string",
+      "doc": "Tracked remote branch."
+    }
+  ]
+}

@@ -1,0 +1,85 @@
+{
+  "type": "record",
+  "name": "help",
+  "namespace": "spl.data.mycelium.process",
+  "doc": "Help response for a namespace node. Composed from the target's doc.md body, its ancestors' summaries (walking up), and its schema.avsc doc fields.",
+  "fields": [
+    {
+      "name": "streamType",
+      "type": "string",
+      "doc": "The namespace path this help describes (e.g. spl.mycelium.git.commit)."
+    },
+    {
+      "name": "summary",
+      "type": "string",
+      "default": "",
+      "doc": "One-line tagline. Sourced from the target's doc.md frontmatter summary field."
+    },
+    {
+      "name": "description",
+      "type": "string",
+      "default": "",
+      "doc": "Full prose description. Sourced from the target's doc.md body."
+    },
+    {
+      "name": "context",
+      "type": {
+        "type": "array",
+        "items": {
+          "type": "record",
+          "name": "context_crumb",
+          "namespace": "spl.data.mycelium.process",
+          "doc": "One ancestor namespace node in the path from root to target. Enables the caller to render a namespace breadcrumb.",
+          "fields": [
+            { "name": "path", "type": "string", "doc": "Ancestor namespace path (e.g. spl.mycelium.git)." },
+            { "name": "summary", "type": "string", "doc": "Ancestor's doc.md summary, empty if absent." }
+          ]
+        }
+      },
+      "default": [],
+      "doc": "Ancestor summaries from root to target (exclusive). Empty when target is the root."
+    },
+    {
+      "name": "children",
+      "type": {
+        "type": "array",
+        "items": "spl.data.mycelium.process.context_crumb"
+      },
+      "default": [],
+      "doc": "Direct child namespace nodes of the target, each with its own summary. Enables index rendering without a separate handler — `spl help` on a family node lists its members."
+    },
+    {
+      "name": "inputs",
+      "type": {
+        "type": "array",
+        "items": {
+          "type": "record",
+          "name": "input_field",
+          "namespace": "spl.data.mycelium.process",
+          "doc": "One positional input. Position \"key\" refers to the stream record key (fabric address); other positions refer to named fields inside the handler's args element. Populated once per-handler input schemas exist; empty until then.",
+          "fields": [
+            { "name": "position", "type": "string", "doc": "Either \"key\" (fabric address on the stream record) or the name of a field inside one args element." },
+            { "name": "name", "type": "string", "doc": "Human-readable field name." },
+            { "name": "fieldType", "type": "string", "doc": "Expected data type." },
+            { "name": "required", "type": "boolean" },
+            { "name": "doc", "type": "string", "doc": "Description of this input." }
+          ]
+        }
+      },
+      "default": []
+    },
+    {
+      "name": "output",
+      "type": {
+        "type": "record",
+        "name": "output_info",
+        "namespace": "spl.data.mycelium.process",
+        "doc": "Describes the handler's return shape. Sourced from the target's schema.avsc (name + top-level doc).",
+        "fields": [
+          { "name": "type", "type": ["null", "string"], "default": null, "doc": "Response schema name, or null if the node has no output schema." },
+          { "name": "doc", "type": "string", "default": "", "doc": "Description of the output, sourced from the schema's top-level doc field." }
+        ]
+      }
+    }
+  ]
+}

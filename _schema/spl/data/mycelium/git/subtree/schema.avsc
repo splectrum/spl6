@@ -1,0 +1,27 @@
+{
+  "type": "record",
+  "name": "subtree",
+  "namespace": "spl.data.mycelium.git",
+  "doc": "Response shape for git.subtree.list. Registered subtrees as read from .gittrees.",
+  "fields": [
+    {
+      "name": "entries",
+      "type": {
+        "type": "array",
+        "items": {
+          "type": "record",
+          "name": "subtree_entry",
+          "namespace": "spl.data.mycelium.git",
+          "doc": "One registered subtree.",
+          "fields": [
+            { "name": "prefix", "type": "string", "doc": "Path prefix relative to repo root (e.g. lib/avsc)." },
+            { "name": "remote", "type": "string", "doc": "Git remote name (e.g. bare-for-pear/avsc)." },
+            { "name": "branch", "type": "string", "doc": "Tracked remote branch." },
+            { "name": "url", "type": ["null", "string"], "default": null, "doc": "Optional explicit remote URL. Null means resolve from the platform-default URL format." }
+          ]
+        }
+      },
+      "doc": "Registered subtrees from .gittrees."
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# spl-test — run test suites.
+# Usage: spl-test [suite-name]
+SELF="$(readlink -f "$0")"
+DIR="$(cd "$(dirname "$SELF")/.." && pwd)"
+exec bare "$DIR/_test/runner.js" "$@"

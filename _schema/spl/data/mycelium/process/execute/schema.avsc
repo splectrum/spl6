@@ -1,0 +1,27 @@
+{
+  "type": "record",
+  "name": "execute",
+  "namespace": "spl.data.mycelium.process",
+  "doc": "Execution context envelope. Carries process-level concerns (mode, root) alongside the inner record. Handler input lives on the inner record's operator header, not here.",
+  "fields": [
+    {
+      "name": "mode",
+      "type": "string",
+      "default": "sync",
+      "doc": "Execution mode. sync blocks until returns arrive; async fires and forgets."
+    },
+    {
+      "name": "root",
+      "type": {
+        "type": "record",
+        "name": "root",
+        "namespace": "spl.data.mycelium.process",
+        "doc": "Execution root. Anchors path resolution for the call.",
+        "fields": [
+          { "name": "repo", "type": "string", "doc": "Absolute filesystem path of the repo root." },
+          { "name": "local", "type": "string", "doc": "Local root relative to repo root, as /segment/path. / = repo root." }
+        ]
+      }
+    }
+  ]
+}

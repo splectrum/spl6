@@ -1,0 +1,5 @@
+# URI → Schema mapping
+# Per-file registration. URI relative to local root.
+# Registered schema → file extension → binary
+#
+# /path/to/file    schema.name

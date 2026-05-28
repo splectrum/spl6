@@ -1,0 +1,41 @@
+{
+  "type": "record",
+  "name": "status",
+  "namespace": "spl.data.mycelium.git",
+  "doc": "Response shape for git.status. Includes two-reality awareness — reality is \"subtree\" when the invocation local root sits inside a registered subtree, \"repo\" otherwise.",
+  "fields": [
+    {
+      "name": "branch",
+      "type": "string",
+      "doc": "Current branch name."
+    },
+    {
+      "name": "reality",
+      "type": "string",
+      "default": "repo",
+      "doc": "Which two-reality context the status was taken in: \"repo\" for the outer repository, \"subtree\" when scoped to a registered subtree prefix."
+    },
+    {
+      "name": "files",
+      "type": {
+        "type": "array",
+        "items": {
+          "type": "record",
+          "name": "file_status",
+          "namespace": "spl.data.mycelium.git",
+          "doc": "One file's status in the working tree.",
+          "fields": [
+            { "name": "status", "type": "string", "doc": "Two-character git status code (e.g. \" M\", \"A \", \"??\")." },
+            { "name": "path", "type": "string", "doc": "Path relative to the repo root." }
+          ]
+        }
+      },
+      "doc": "Files with any working-tree or index change."
+    },
+    {
+      "name": "clean",
+      "type": "boolean",
+      "doc": "True when files is empty."
+    }
+  ]
+}

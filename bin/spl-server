@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# spl-server — Splectrum RPC server.
+# System service: serves requests for any repo on the filesystem.
+SELF="$(readlink -f "$0")"
+DIR="$(cd "$(dirname "$SELF")/.." && pwd)"
+exec bare "$DIR/spl/avsc-rpc/server" "$@"

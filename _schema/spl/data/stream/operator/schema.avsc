@@ -1,0 +1,20 @@
+{
+  "type": "record",
+  "name": "operator",
+  "namespace": "spl.data.stream",
+  "doc": "Operator invocation I/O. args is input, returns is output. Both are arrays (bulk by default) so operators naturally consume and emit nodesets.",
+  "fields": [
+    {
+      "name": "args",
+      "type": { "type": "array", "items": "bytes" },
+      "default": [],
+      "doc": "Input arguments, one element per invocation. Each element is the encoded input tuple for the handler (shape defined by the handler's input schema)."
+    },
+    {
+      "name": "returns",
+      "type": { "type": "array", "items": "bytes" },
+      "default": [],
+      "doc": "Output values, one per emitted result. Length may differ from args (fan-out, filter, reduce)."
+    }
+  ]
+}

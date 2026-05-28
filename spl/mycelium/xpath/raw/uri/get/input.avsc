@@ -1,0 +1,14 @@
+{
+  "type": "record",
+  "name": "get_input",
+  "namespace": "spl.mycelium.xpath.raw.uri.get",
+  "doc": "Input shape for one xpath.raw.uri.get invocation.",
+  "fields": [
+    {
+      "name": "uri",
+      "type": "string",
+      "position": "key",
+      "doc": "Node URI relative to local root. Travels as the stream record key."
+    }
+  ]
+}

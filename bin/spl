@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# spl — Splectrum CLI. Symlink to PATH for global use.
+# Submits requests to the running spl server.
+# Invocation: spl <schema> [key] [args...]
+SELF="$(readlink -f "$0")"
+DIR="$(cd "$(dirname "$SELF")/.." && pwd)"
+exec bare "$DIR/spl/avsc-rpc/cli" "$@"

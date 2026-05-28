@@ -1,0 +1,31 @@
+{
+  "type": "record",
+  "name": "diff",
+  "namespace": "spl.data.mycelium.git",
+  "doc": "Response shape for git.diff. Combines the raw diff text with a summary so clients can render either without a second call.",
+  "fields": [
+    {
+      "name": "content",
+      "type": "string",
+      "doc": "Full unified diff output as produced by git."
+    },
+    {
+      "name": "filesChanged",
+      "type": "int",
+      "default": 0,
+      "doc": "Number of files touched."
+    },
+    {
+      "name": "insertions",
+      "type": "int",
+      "default": 0,
+      "doc": "Total inserted lines across all files."
+    },
+    {
+      "name": "deletions",
+      "type": "int",
+      "default": 0,
+      "doc": "Total deleted lines across all files."
+    }
+  ]
+}

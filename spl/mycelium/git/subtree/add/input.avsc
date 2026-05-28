@@ -1,0 +1,29 @@
+{
+  "type": "record",
+  "name": "subtree_add_input",
+  "namespace": "spl.mycelium.git.subtree.add",
+  "doc": "Input shape for one git.subtree.add invocation.",
+  "fields": [
+    {
+      "name": "prefix",
+      "type": "string",
+      "doc": "Path prefix relative to repo root."
+    },
+    {
+      "name": "remote",
+      "type": "string",
+      "doc": "Git remote name."
+    },
+    {
+      "name": "branch",
+      "type": "string",
+      "doc": "Tracked remote branch."
+    },
+    {
+      "name": "url",
+      "type": ["null", "string"],
+      "default": null,
+      "doc": "Optional explicit remote URL. Null resolves from the platform-default format (GitHub by default)."
+    }
+  ]
+}

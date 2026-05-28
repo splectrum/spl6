@@ -193,7 +193,7 @@ module.exports = [
       if (reality.mode !== 'subtree') {
         return { pass: false, message: 'expected subtree mode, got ' + JSON.stringify(reality) }
       }
-      if (reality.remote !== 'spl5-test') {
+      if (reality.remote !== 'spl6-test') {
         return { pass: false, message: 'unexpected remote: ' + reality.remote }
       }
       return { pass: true, message: 'ok' }

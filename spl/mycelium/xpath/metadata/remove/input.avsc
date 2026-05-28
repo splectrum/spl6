@@ -1,0 +1,14 @@
+{
+  "type": "record",
+  "name": "remove_input",
+  "namespace": "spl.mycelium.xpath.metadata.remove",
+  "doc": "Input shape for one xpath.metadata.remove invocation.",
+  "fields": [
+    {
+      "name": "uri",
+      "type": "string",
+      "position": "key",
+      "doc": "Node URI relative to local root. Non-metadata paths return an error (metadata lens)."
+    }
+  ]
+}

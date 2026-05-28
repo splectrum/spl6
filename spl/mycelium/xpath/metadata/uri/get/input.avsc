@@ -1,0 +1,14 @@
+{
+  "type": "record",
+  "name": "get_input",
+  "namespace": "spl.mycelium.xpath.metadata.uri.get",
+  "doc": "Input shape for one xpath.metadata.uri.get invocation.",
+  "fields": [
+    {
+      "name": "uri",
+      "type": "string",
+      "position": "key",
+      "doc": "Node URI relative to local root. Non-metadata paths are invisible (metadata lens)."
+    }
+  ]
+}

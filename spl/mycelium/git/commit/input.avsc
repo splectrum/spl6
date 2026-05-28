@@ -1,0 +1,13 @@
+{
+  "type": "record",
+  "name": "commit_input",
+  "namespace": "spl.mycelium.git.commit",
+  "doc": "Input shape for one git.commit invocation.",
+  "fields": [
+    {
+      "name": "message",
+      "type": "string",
+      "doc": "Commit message — subject line followed by optional body."
+    }
+  ]
+}

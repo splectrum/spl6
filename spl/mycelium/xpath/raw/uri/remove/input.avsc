@@ -1,0 +1,14 @@
+{
+  "type": "record",
+  "name": "remove_input",
+  "namespace": "spl.mycelium.xpath.raw.uri.remove",
+  "doc": "Input shape for one xpath.raw.uri.remove invocation.",
+  "fields": [
+    {
+      "name": "uri",
+      "type": "string",
+      "position": "key",
+      "doc": "Node URI relative to local root. Travels as the stream record key."
+    }
+  ]
+}

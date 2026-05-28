@@ -1,0 +1,27 @@
+{
+  "type": "record",
+  "name": "log",
+  "namespace": "spl.data.mycelium.git",
+  "doc": "Response shape for git.log. Entries are ordered newest-first.",
+  "fields": [
+    {
+      "name": "entries",
+      "type": {
+        "type": "array",
+        "items": {
+          "type": "record",
+          "name": "log_entry",
+          "namespace": "spl.data.mycelium.git",
+          "doc": "One commit entry.",
+          "fields": [
+            { "name": "hash", "type": "string", "doc": "Full commit SHA." },
+            { "name": "author", "type": "string", "doc": "Author name and email (name <email> format)." },
+            { "name": "timestamp", "type": "long", "doc": "Author timestamp in milliseconds since epoch." },
+            { "name": "message", "type": "string", "doc": "Commit message subject line." }
+          ]
+        }
+      },
+      "doc": "Commit entries, newest-first."
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "type": "record",
+  "name": "record",
+  "namespace": "spl.data.stream",
+  "doc": "Stream record. The fabric's universal message shape — Kafka-native key/value with typed headers. Used for storage, transport, and the onion envelope between handlers.",
+  "fields": [
+    {
+      "name": "offset",
+      "type": "long",
+      "default": 0,
+      "doc": "Position in the stream. Zero when the record is not part of a persisted log."
+    },
+    {
+      "name": "timestamp",
+      "type": "long",
+      "doc": "Creation time in milliseconds since epoch."
+    },
+    {
+      "name": "key",
+      "type": "string",
+      "doc": "Fabric address. For xpath operations this is the node URI relative to the local root."
+    },
+    {
+      "name": "value",
+      "type": "bytes",
+      "default": "",
+      "doc": "Payload bytes. Shape depends on context — for an envelope this is the inner record; for a node this is content."
+    },
+    {
+      "name": "headers",
+      "type": {
+        "type": "array",
+        "items": {
+          "type": "record",
+          "name": "header",
+          "namespace": "spl.data.stream",
+          "doc": "One header entry. Value is either raw bytes (opaque) or the stream descriptor record itself (the well-known entry that identifies the record's stream type).",
+          "fields": [
+            { "name": "key", "type": "string", "doc": "Header name. Convention: namespaced dot-path (e.g. spl.status, spl.error, spl.mycelium.process.execute)." },
+            {
+              "name": "value",
+              "type": [
+                "bytes",
+                {
+                  "type": "record",
+                  "name": "descriptor",
+                  "namespace": "spl.data.stream",
+                  "doc": "Stream descriptor — identifies the record's stream type so handlers can be resolved by namespace path.",
+                  "fields": [
+                    { "name": "type", "type": "string", "doc": "Stream type as a namespace-dot-path (e.g. spl.mycelium.git.commit)." }
+                  ]
+                }
+              ],
+              "doc": "Either raw bytes (schema-typed via the header key or descriptor convention) or a stream descriptor record."
+            }
+          ]
+        }
+      },
+      "default": [],
+      "doc": "Typed headers. Carries the stream descriptor, execution context, status, error, and any other per-record metadata."
+    }
+  ]
+}

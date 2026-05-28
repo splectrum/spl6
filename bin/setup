@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# Populate platform dependencies into lib/ from npm.
+# npm is used here because native addon prebuilds are
+# published to npm but not committed to GitHub repos.
+# Run once after clone, or when updating platform versions.
+set -e
+
+DIR="$(cd "$(dirname "$0")/.." && pwd)"
+
+PLATFORM_DEPS=(
+  "bare-fs@4.7.0"
+  "bare-net@2.3.1"
+  "bare-path@3.0.0"
+  "bare-crypto@1.13.4"
+  "bare-buffer@3.6.0"
+  "bare-events@2.8.2"
+  "bare-stream@2.13.0"
+  "bare-subprocess@6.0.0"
+)
+
+echo "installing platform dependencies..."
+cd "$DIR"
+npm install --no-save "${PLATFORM_DEPS[@]}" 2>&1 | tail -1
+
+echo "moving to lib/..."
+for mod in node_modules/*/; do
+  name=$(basename "$mod")
+  [[ "$name" == .* ]] && continue
+  rm -rf "$DIR/lib/$name"
+  mv "$mod" "$DIR/lib/$name"
+done
+
+rm -rf node_modules package-lock.json
+
+# symlink so platform modules find each other
+ln -sf lib node_modules
+
+echo "done."

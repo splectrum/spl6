@@ -1,0 +1,14 @@
+{
+  "type": "record",
+  "name": "subtree_pull_input",
+  "namespace": "spl.mycelium.git.subtree.pull",
+  "doc": "Input shape for one git.subtree.pull invocation.",
+  "fields": [
+    {
+      "name": "prefix",
+      "type": ["null", "string"],
+      "default": null,
+      "doc": "Subtree prefix. Null means infer from subtree reality — required when invoked from the outer repo."
+    }
+  ]
+}
