@@ -6,6 +6,8 @@ when the state shifts. Reflects current reality, not history
 
 ## Working end-to-end
 
+Carried forward from spl5 (Chapter 1 migration), running on TCP:
+
 - 6 URI protocols (raw/data/metadata × get/put/remove)
 - 6 schema-aware protocols (type resolution, into-file navigation)
 - lib/git + spl.mycelium.git (status, log, diff, add, commit, push, pull, subtree ops)
@@ -14,7 +16,8 @@ when the state shifts. Reflects current reality, not history
 - Help handler (spl.mycelium.process.help) with doc.md prose + schema-doc shape + children listing (any family node renders as an index)
 - Every namespace node has doc.md — tree is fully self-navigable
 - CLI global flag framework (--help functional; --async, --json stubbed)
-- Test suite: 72 tests passing (lib/git 19, lib/rpc-server 18, xpath 18, git 11, process/help 6)
+- Test suite: 73 tests passing (lib/git 19, lib/rpc-server 18, xpath 18, git 11, process/help 7)
+- 5 subtrees re-registered (avsc, avsc-rpc, git, rpc-server; _test → splectrum/spl6.test)
 
 ## Settled conventions
 
@@ -62,11 +65,26 @@ entries to `flagRegistry` in spl/avsc-rpc/cli/index.js.
 
 ## In progress
 
-Nothing mid-change. Last commit is clean end-state.
+Nothing mid-change. Chapter 1 migration is complete; the baseline is the
+clean end-state.
 
 ## Next up
 
-### Followups on the roadmap
+Chapter sequence (see `initialise/plan.md`):
+
+1. **Chapter 2 — Documentation.** Documentation prompts written here,
+   executed by the the-world-of-splectrum repo (in-wonder ref lib).
+2. **Chapter 3 — P2P transport POCs.** Prove AVRO-over-Hyperswarm,
+   namespace-to-topic mapping, multi-peer, pear-runtime updates — in
+   isolation, outside spl, before any integration.
+3. **Chapter 4 — spl6 integrations.** Bring the swarm transport into
+   spl (single peer on DHT, topic registration, distributed dispatch,
+   multi-peer, pear-runtime). TCP stays for local dev; `spl-server` →
+   `spl-peer` and `lib/rpc-server` drop happen here.
+
+### Carried-over backlog (spl5-era, still valid)
+
+Lower priority than the chapter sequence; revisit when pressure surfaces.
 
 1. **Harness as direct RPC client** (pressure-point item, not yet urgent).
    Extract `spl/avsc-rpc/client/` from CLI; make harness a direct client

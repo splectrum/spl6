@@ -1,4 +1,4 @@
-# CLAUDE.md — Splectrum (spl5)
+# CLAUDE.md — Splectrum (spl6)
 
 ## What This Is
 
@@ -19,11 +19,32 @@ One source of truth — don't keep copies elsewhere.
 
 ## Mission
 
-spl5 is the prototyping iteration. Its mission is to
-prove the mycelium fabric architecture end-to-end:
-AVRO RPC server, Kafka-native stream record shape,
-fabric APIs, CLI as subject, and the namespace/node
-structure.
+spl6 carries spl5's proven mycelium fabric onto P2P
+infrastructure. spl5 proved the fabric end-to-end on
+local TCP RPC — stream record, namespace-as-filesystem
+dispatch, pack-at-boundary, handler contracts, input
+schemas, help system. Those concepts are transport-
+independent. spl6 takes them toward Hyperswarm/HyperDHT
+and pear-runtime: same protocol, data model, and handler
+contract, a different pipe underneath.
+
+Not a rewrite — a transport swap under proven patterns.
+
+The full plan and chapter sequence is in
+`initialise/plan.md`.
+
+## Current State
+
+Chapter 1 (initialisation) — **migration complete**. The
+proven fabric is carried forward like-for-like and runs
+on the existing TCP transport. 73 tests pass.
+
+Sequence ahead: Chapter 2 (documentation), then
+Chapter 3 (P2P transport POCs — prove AVRO-over-Hyperswarm
+in isolation), then Chapter 4 (integrate the swarm
+transport into spl). The TCP path stays as the local-dev
+transport; Hyperswarm is added, not substituted, until it
+is proven.
 
 ## How We Work
 
@@ -32,11 +53,15 @@ structure.
   do it, it should.
 - **Technology decisions are AI's domain.** Decide.
 - **Build, don't plan endlessly.** If wrong, fix it.
+- **Migrate before changing.** When carrying code forward,
+  import like-for-like first and get a green baseline;
+  make changes as deliberate, separate steps.
 - **Philosophy first.** Engineering follows from the
   seed principles.
 - **KISS.** Simplest mechanism that serves the purpose.
 - **Engineering as conversation.** Natural language at
   the interaction level, rigid implementation beneath.
+  Keep the human in the loop on direction.
 
 ## Autonomy Target
 
@@ -55,7 +80,7 @@ spl/                  — spl namespace root (lib/spl symlink)
   avsc-rpc/           — spl.avsc.rpc (RPC layer)
     protocol.js       — RPC protocol definition
     display.js        — human-readable rendering
-    server/index.js   — thin protocol layer on lib/rpc-server
+    server/index.js   — thin protocol layer on lib/rpc-server (TCP)
     cli/index.js      — CLI client, multi-client identity
   mycelium/           — spl.mycelium (fabric)
     runtime.js        — Bare runtime essentials
@@ -64,6 +89,7 @@ spl/                  — spl namespace root (lib/spl symlink)
     process/          — spl.mycelium.process
       dispatch/index.js — namespace-path handler resolution
       execute/index.js  — execution context, response type packing
+      help/index.js     — help composition (doc.md + schema + ancestors)
     xpath/            — spl.mycelium.xpath
       helpers.js        — schema resolution, into-file navigation
       raw/              — raw visibility + schema aware
@@ -88,24 +114,24 @@ _schema/              — local schema registry (metadata)
   uri-schema.txt      — URI → schema (for schema-aware xpath)
   spl/data/           — AVRO data schemas
     stream/             — stream record, descriptor, operator
-    mycelium/process/   — execute context
+    mycelium/process/   — execute context, help
     mycelium/xpath/     — node record
     mycelium/git/       — status, log, diff, subtree
 
 _client/              — default client identity
   context.txt         — command → stream type mapping
-_test/                — test framework (subtree: spl5.test)
+_test/                — test framework (subtree: splectrum/spl6.test)
   _client/context.txt — test client identity
   suites/             — test suite files
   resources/          — test fixtures
   harness.js          — spl executor + assertions
   runner.js           — suite loader + reporter
-_server/              — server instance (pid, logs, cmd/)
+_server/              — server instance (pid, logs, cmd/) — gitignored
 .gittrees             — subtree prefix → remote → branch
 
 bin/                  — entry points
   spl                 — global CLI (~/.local/bin/spl)
-  spl-server          — RPC server
+  spl-server          — TCP RPC server
   spl-test            — test runner
   setup               — platform deps installer
 
@@ -113,20 +139,22 @@ lib/                  — dependencies
   avsc/              — AVRO types (subtree: bare-for-pear/avsc)
   avsc-rpc/          — AVRO RPC (subtree: bare-for-pear/avsc-rpc)
   git/               — git operations (subtree: bare-for-pear/git)
-  rpc-server/        — server lifecycle, PID, IPC, logging (subtree: bare-for-pear/rpc-server)
+  rpc-server/        — TCP server lifecycle, PID, IPC, logging (subtree: bare-for-pear/rpc-server)
   spl -> ../spl      — namespace require symlink
   bare-*/            — platform deps (gitignored)
-
-docs/                — DECISIONS.md, design submissions
 ```
 
 - **Bare only** — no Node.js, no dual-runtime
 - **node_modules → lib/** symlink for all module resolution
 - **bin/spl** — global CLI, symlinked to ~/.local/bin
-- **bin/spl-server** — RPC server, system service
+- **bin/spl-server** — TCP RPC server, system service. Stop it by
+  dropping an empty `shutdown` file into `_server/cmd/` (graceful);
+  don't kill PIDs.
 - **bin/setup** — populates platform deps from npm
 
 ## What Works
+
+Carried forward from spl5, running on TCP:
 
 - AVRO RPC server + CLI over TCP on Bare
 - lib/rpc-server: server lifecycle (start/stop/restart),
@@ -148,8 +176,12 @@ docs/                — DECISIONS.md, design submissions
 - .gittrees: subtree prefix → remote → branch mapping
 - Multi-client identity: _<name>/_client/context.txt
 - CLI context aliases with modifiers (raw, meta)
-- Test framework: 66 tests, module-organized suites
-  (lib/git 19, lib/rpc-server 18, xpath 18, git 11)
+- Help system (spl.mycelium.process.help): doc.md prose +
+  schema-doc shape + ancestor context + children listing
+- CLI global flag framework (--help functional)
+- Test framework: 73 tests, module-organized suites
+  (lib/git 19, lib/rpc-server 18, xpath 18, git 11,
+  process/help 7)
 - 5 subtrees registered (avsc, avsc-rpc, git, rpc-server, _test)
 - lib/git: remote management + configurable platform
   (GitHub default, pluggable)
@@ -174,57 +206,7 @@ docs/                — DECISIONS.md, design submissions
     Handler input shape is defined by the handler, like
     a function signature
 
-## POC Sequence (complete)
-
-1. ~~AVRO RPC server~~ ✓
-2. ~~CLI submitting to server~~ ✓
-3. ~~Stream record redesign~~ ✓
-4. ~~rawuri get/put/remove~~ ✓
-5. ~~datauri, metadatauri~~ ✓
-6. ~~Schema-aware protocols (raw/data/metadata)~~ ✓
-7. ~~Protocol resolution in cli.execute~~ ✓
-8. ~~lib/git + spl.mycelium.git~~ ✓
-9. ~~Test framework (spl5.test subtree)~~ ✓
-10. ~~Multi-client identity~~ ✓
-
-## Roadmap
-
-### Next: schema review + help system
-
-1. Review all existing AVRO schemas for completeness,
-   add doc fields, fix missing information. The schemas
-   are the source of truth — they need to be right before
-   the help system reads from them.
-
-2. help.json per handler directory describes inputs (name,
-   type, position, doc). Help handler (spl.mycelium.process.help)
-   reads these and returns structured help. CLI --help flag.
-
-   Plan approved. Schema started (_schema/spl/data/mycelium/
-   process/help/schema.avsc created). Implementation next.
-
-   Phase 1: help handler, 5 representative help.json files,
-   CLI --help flag. Phase 2: all ~35 help.json files, list
-   mode. Phase 3: CLI reads help metadata to map positional
-   args to named fields (spl git.commit "msg" just works).
-
-### Then: context stream types
-
-Context registration layer. Three mapping concerns:
-1. Data schema (alias-mapping.txt — done)
-2. Stream type (namespace dispatch — done)
-3. Context type (protocol availability per node — roadmap)
-
-Context aliases (spl.context.*) with colocated mappings.
-Versioning as stream type internal concern.
-
-### Identified improvements
-
-- Test runner: auto-start/stop server for test runs
-
 ## Key Design Decisions
-
-See docs/DECISIONS.md for full log. Key points:
 
 - Stream descriptor: { type } only — zero-cost dispatch
 - Dual header entry: descriptor (base) + type-specific

@@ -75,40 +75,53 @@ system — all unchanged.
 
 Source: `/home/herma/splectrum/spl5` (archived)
 
-Copy transport-independent code:
-- `spl/mycelium/` — all handlers, doc.md, input.avsc
-- `spl/avsc-rpc/protocol.js` — the AVRO protocol definition
-- `spl/avsc-rpc/display.js` — human-readable rendering
+Copy the spl5 namespace and registries as-is — a pure migration, no
+changes during the import:
+- `spl/` — the full namespace: mycelium fabric (all handlers, doc.md,
+  input.avsc), the avsc-rpc protocol + display, and the TCP server/cli
 - `_schema/` — all AVRO schemas, alias-mapping.txt
 - `_client/` — default client identity
+- `bin/` — entry points (spl, spl-server, spl-test, setup)
+
+The transport-independent core (mycelium, protocol, display, schemas)
+is what spl6 builds on; the TCP server/cli come too so the fabric runs
+end-to-end immediately on the known-good path.
 
 ### 1.2 Re-register lib/ subtrees
 
-Subtrees that are still relevant:
+Subtrees carried forward:
 - `lib/avsc` — AVRO types
 - `lib/avsc-rpc` — AVRO RPC (transport-agnostic)
 - `lib/git` — git operations
+- `lib/rpc-server` — TCP server lifecycle (retained — the TCP path
+  stays the local-dev transport)
 - `_test` — test framework (will evolve)
 
-Drop `lib/rpc-server` — TCP lifecycle replaced by swarm lifecycle.
+`lib/rpc-server` is dropped later, in Chapter 4, once swarm lifecycle
+replaces TCP lifecycle. Nothing replaces it before then, so it stays.
 
-### 1.3 New transport layer
+### 1.3 Transport stays TCP
 
-Replace `spl/avsc-rpc/server/` and `spl/avsc-rpc/cli/` with versions
-supporting both TCP (local dev) and Hyperswarm (P2P). Protocol
-definition and dispatch unchanged.
+Chapter 1 keeps the existing TCP transport (`spl/avsc-rpc/server/` and
+`spl/avsc-rpc/cli/`) unchanged — it carries forward as-is so the fabric
+runs end-to-end on a known-good path.
 
-New dependencies:
-- `hyperswarm` — peer discovery and encrypted connections
-- `hyperdht` — DHT for the swarm
-- `pear-runtime` — P2P updates (added incrementally, not day one)
+The Hyperswarm transport is proven in isolation in Chapter 3 (POCs)
+and integrated into spl in Chapter 4. The new dependencies
+(`hyperswarm`, `hyperdht`, `pear-runtime`) arrive with that work — not
+here. Chapter 1 is a pure migration.
 
 ### 1.4 Entry points
 
-- `bin/spl` — CLI, swarm-based connection
-- `bin/spl-peer` — peer on the swarm (replaces spl-server)
-- `bin/spl-test` — updated for new transport
-- `bin/setup` — updated for new dependencies
+Carried forward unchanged:
+- `bin/spl` — CLI (TCP connection)
+- `bin/spl-server` — TCP RPC server
+- `bin/spl-test` — test runner
+- `bin/setup` — platform deps installer
+
+The swarm-facing changes — `bin/spl` swarm connection, `spl-server` →
+`bin/spl-peer`, `setup` for new dependencies — land in Chapter 4
+alongside the transport integration.
 
 ### 1.5 Project docs
 
@@ -247,7 +260,11 @@ all handlers on one peer. Validates the transport works end-to-end
 through the real spl stack (CLI → swarm → AVRO RPC → dispatch →
 handler → response).
 
-Keep TCP alongside for local development.
+Keep TCP alongside for local development. This is where
+`bin/spl-server` becomes `bin/spl-peer` and the new dependencies
+(`hyperswarm`, `hyperdht`) are introduced into spl. `lib/rpc-server`
+is dropped once swarm lifecycle fully replaces the TCP lifecycle and
+TCP is no longer needed for local dev.
 
 ### 4.2 Namespace topic registration
 

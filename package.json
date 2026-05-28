@@ -1,5 +1,5 @@
 {
-  "name": "spl5",
+  "name": "spl6",
   "version": "0.1.0",
-  "description": "Splectrum runtime — mycelium fabric prototype"
+  "description": "Splectrum runtime — mycelium fabric on P2P transport"
 }

@@ -12,7 +12,7 @@ module.exports = [
     name: 'into-file navigation returns leaf',
     run () {
       let r = spl('spl.mycelium.xpath.raw.get', '/package.json/name')
-      return expect(r).hasValue().typeIs('leaf').valueContains('spl5')
+      return expect(r).hasValue().typeIs('leaf').valueContains('spl6')
     }
   },
   {
