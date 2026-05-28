@@ -329,3 +329,48 @@ be premature.
 - **bare-for-pear contribution**: does the namespace-to-topic discovery
   layer become a new bare-for-pear module, or does it live in spl6
   until it's proven enough to extract?
+- **Global invocation → client-server resolution** (evaluate *after* the
+  POCs, as part of deciding the spl implementation): today the global
+  `spl` connects to one fixed server (localhost:24950) whose handler and
+  schema roots are bound to the *server process's own repo* —
+  `dispatch/index.js` (`getRoot`) requires handlers from there, and
+  `schema.js` (`schemaRoot`) reads `_schema` from there. With several
+  repos on one machine that means `spl` runs the server-repo's
+  implementation against the caller's data; "serves any repo on the
+  filesystem" only holds if every repo shares an identical `spl/` +
+  `_schema/`.
+
+  Proposed direction: make the global entry point a thin client-side
+  *resolver*. From the invocation context — cwd → repo, plus client
+  identity — it works out **which client-server combination** is
+  targeted (two selectors: which client identity, which server/peer)
+  and connects the client to its *local* server. That server then owns
+  the namespace mappings for processing, which may themselves be
+  distributed/decentralised (a topic served locally or forwarded to
+  another peer). This separates client-side client-server selection
+  from server-side namespace dispatch: the global tool never needs the
+  whole topology, only the right local entry point; the server handles
+  dispatch or fan-out into the fabric from there.
+
+  It is the local, single-machine form of the P2P dispatch model
+  (repo = peer; `spl` = router to the peer for your context), so it is
+  forward-compatible with §3.2 and §4.3. Concrete shape to decide after
+  the POCs: per-repo peer vs in-process local path; how a peer is
+  addressed (unix socket / port / topic) and auto-started; how client
+  identity is selected. Deferred deliberately — not Chapter 1 (pure
+  migration), and the POCs should inform the dispatch/transport model
+  before this is settled.
+- **Code analysis + improvement proposal before the P2P changes**
+  (evaluate *after* the POCs): the migration carried spl5 forward
+  like-for-like, so whatever latent issues existed came with it — e.g.
+  the server-repo-bound handler/schema resolution (above), the absence
+  of any orchestrator type actually exercising internal `dispatch()`
+  (the re-entry seam is designed for but unused), and the client-server
+  resolution model still being implicit. Question: before starting the
+  Chapter 4 P2P integration, should we run a structured analysis of the
+  migrated codebase and produce an improvement proposal — clarifying and
+  hardening the base so the distributed work builds on solid ground
+  rather than carrying latent issues into the harder transport changes?
+  The Chapter 3 POCs will also surface what the implementation actually
+  needs. Decide scope and timing after the POCs, alongside the
+  client-server resolution question above.
