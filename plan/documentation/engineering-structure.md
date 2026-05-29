@@ -139,11 +139,14 @@ Clark/XPath).
   in Platform/substrate, the external spec linked from the subject — not
   a subject.
   - AVRO / Git / Kafka qualify (deep histories); **URI** qualifies (Web
-    addressing, naming, identity-vs-location).
-  - **XPath does not** — largely technical; its language-topic is covered
-    by the DSL subject (cross-ref it). Treat XPath technically in
-    engineering/platform; no standalone XPath subject.
-  - So the "where" axis = one Subject (URI), not two.
+    addressing, naming, identity-vs-location); **XPath** qualifies too —
+    the axis/location-path navigation model, its history (W3C, James
+    Clark, the XML/XSLT/XQuery family), the URI+XPath addressing stack
+    (XPointer), and influence on JSONPath / CSS selectors / XQuery.
+  - So the "where" axis = **two** complementary Subjects: URI (resource
+    addressing) and XPath (within-structure navigation). *Reversed an
+    earlier "XPath: no subject, DSL covers it" — DSL is a general field
+    page and doesn't carry XPath's own history/model.*
 - **Resonance rings stay philosophical.** The rings (Seed / Close
   affinity / Wider landscape / On the fence) grade *philosophical*
   proximity to the seed; engineering subjects are NOT compiled into
@@ -196,8 +199,8 @@ Subjects, then lean substrate pages linking to them.
   pattern. Neutral and on its own terms (including alignment debates and
   criticism), transparent about the relationship — not advocacy. A
   distinct thread from the data-infrastructure substrate work.
-- **XPath/URI substrate page** — the "where" substrate page (URI subject
-  exists; XPath technical-only, no subject, DSL cross-ref).
+- **"Where" substrate page** — commits to URI and XPath for
+  addressing/navigation; links out to both the URI and XPath subjects.
 - **Link-model visibility to the agent** — the engineering layer/link
   model lives only in spl6 notes; the agent can't see it. Consider
   putting it into the-world-of-splectrum as a structure note.
