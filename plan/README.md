@@ -22,7 +22,7 @@ folder is the source of truth from here on.
 | Chapter | State |
 |---|---|
 | 1 — Initialisation | ✅ complete (migration baseline + spl6 identity; 73 tests green on TCP) |
-| 2 — Documentation | ▶ next |
+| 2 — Documentation | ▶ in progress — engineering structure + subject phase (AVRO/Git/Kafka/URI/XPath subjects + persons) + substrate layer done; Platform/Mycelium + P2P/Pear pages remaining (see `documentation/`) |
 | 3 — P2P transport POCs | ⬜ |
 | 4 — spl6 integrations | ⬜ |
 | 5 — Infrastructure | ⬜ |

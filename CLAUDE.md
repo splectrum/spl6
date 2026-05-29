@@ -47,12 +47,21 @@ Chapter 1 (initialisation) — **migration complete**. The
 proven fabric is carried forward like-for-like and runs
 on the existing TCP transport. 73 tests pass.
 
-Sequence ahead: Chapter 2 (documentation), then
-Chapter 3 (P2P transport POCs — prove AVRO-over-Hyperswarm
-in isolation), then Chapter 4 (integrate the swarm
-transport into spl). The TCP path stays as the local-dev
-transport; Hyperswarm is added, not substituted, until it
-is proven.
+Chapter 2 (documentation) — **in progress**, on the
+splectrum.world engineering section (repo
+`the-world-of-splectrum`). Done: the engineering-section
+structure (the substrate→platform stack, neutral
+positioning Subjects per committed language, the link
+model); the **subject phase** — Subjects for AVRO, Git,
+Kafka, URI, XPath plus their persons; and the **substrate
+layer** reworked to lean pages. Remaining: Platform/Mycelium,
+the P2P/Pear pages, Bare refresh, the spl5→spl6
+retrospective. Working notes: `plan/documentation/`.
+
+Then Chapter 3 (P2P transport POCs) and Chapter 4
+(integrate the swarm transport). The TCP path stays as the
+local-dev transport; Hyperswarm is added, not substituted,
+until proven.
 
 ## How We Work
 
