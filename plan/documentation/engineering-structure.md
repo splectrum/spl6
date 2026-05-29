@@ -206,3 +206,12 @@ Subjects, then lean substrate pages linking to them.
   putting it into the-world-of-splectrum as a structure note.
 - **Narkhede / Jun Rao** — Kafka co-creators, credited but no page yet;
   candidates if they recur elsewhere.
+- **XPath extensibility (for the Platform/Mycelium work).** XPath
+  supports custom functions — extension functions (namespaced,
+  host-supplied) since 1.0; inline + higher-order functions since 3.0;
+  named user functions via XSLT/XQuery host languages. When reworking
+  Platform/Mycelium navigation and designing spl's own XPath-conforming
+  navigator, pin the design to the XPath 3.1 spec (function-call and
+  higher-order-function sections, the extension-function rules) and
+  expose spl's fabric-navigation functions in an spl namespace. spl owns
+  the engine, so it controls the function set.
