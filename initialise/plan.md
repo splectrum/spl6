@@ -1,4 +1,8 @@
-# spl6 Plan
+# spl6 Plan — initial seed (frozen)
+
+> This is the original seed plan, kept as a historical record. The
+> **living plan** now lives in `/plan/` (start at `plan/README.md`) —
+> edit there, not here.
 
 ## Context
 

@@ -10,12 +10,15 @@ Splectrum (language fabric), HAICC (cognition fabric).
 Philosophy drives engineering. The seed principles
 (P0-P5) ground all design decisions.
 
-## Reference Library
+## Documentation
 
-The public reference library at
-jules-tenbos.github.io/in-wonder/ is the living
-engineering documentation. Source: ~/jules-tenbos/in-wonder.
-One source of truth — don't keep copies elsewhere.
+splectrum.world is the public site for SPLectrum philosophy and
+engineering work. Repo: `splectrum/the-world-of-splectrum`
+(`~/splectrum/the-world-of-splectrum`); site files in `docs/`.
+
+spl6's Chapter 2 produces **prompt docs** for that repo to create/update
+pages — it has its own editorial process, so we don't edit the site
+pages directly from here.
 
 ## Mission
 
@@ -30,8 +33,9 @@ contract, a different pipe underneath.
 
 Not a rewrite — a transport swap under proven patterns.
 
-The full plan and chapter sequence is in
-`initialise/plan.md`.
+The living plan and chapter sequence is in `plan/`
+(start at `plan/README.md`). The original seed plan is
+frozen at `initialise/plan.md`.
 
 ## Current State
 
@@ -62,6 +66,22 @@ is proven.
 - **Engineering as conversation.** Natural language at
   the interaction level, rigid implementation beneath.
   Keep the human in the loop on direction.
+- **Ask in prose.** Pose open questions in the
+  conversation — no multiple-choice / option-picker
+  questions.
+- **Agree the approach before acting.** Discuss and
+  confirm before starting any agent, background process,
+  or outward/cross-repo action. A question about whether
+  something is *possible* is not authorization to *do*
+  it — get an explicit go on the specifics first.
+
+## Memory
+
+This file (CLAUDE.md) is the single, in-repo memory —
+kept lean. No out-of-repo memory bank. As it grows,
+offload detail into other repo files (e.g.
+`.claude/rules/`) and keep CLAUDE.md as the lean entry
+point. Every repo operates this way for collaborative AI.
 
 ## Autonomy Target
 
