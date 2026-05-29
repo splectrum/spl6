@@ -127,8 +127,23 @@ own terms", like the existing Domain-specific-languages subject), plus
 related **Persons** (e.g. Cutting/AVRO, Kreps/Kafka, Torvalds/Git,
 Clark/XPath).
 
-- **Subject per language** (not per field). Cross-link to adjacent field
-  subjects where natural (XPath/URI ↔ DSL).
+- **Subjects are topic/history-driven, not mechanical per-language.** A
+  committed language gets a Subject when it has topic / history / context
+  *beyond the technical*; pure technical-spec material is engineering's
+  domain (or just links to the upstream spec) — not a Subject. A Subject
+  *explains and contextualises* on its own terms and links out to the
+  authoritative spec for exhaustive detail; it is not a spec clone.
+  Technical depth is welcome *within* a subject as part of the wider
+  topic treatment; it's standalone *technical-only* material (no
+  topic/history) that belongs in engineering — SPLectrum's own mechanics
+  in Platform/substrate, the external spec linked from the subject — not
+  a subject.
+  - AVRO / Git / Kafka qualify (deep histories); **URI** qualifies (Web
+    addressing, naming, identity-vs-location).
+  - **XPath does not** — largely technical; its language-topic is covered
+    by the DSL subject (cross-ref it). Treat XPath technically in
+    engineering/platform; no standalone XPath subject.
+  - So the "where" axis = one Subject (URI), not two.
 - **Resonance rings stay philosophical.** The rings (Seed / Close
   affinity / Wider landscape / On the fence) grade *philosophical*
   proximity to the seed; engineering subjects are NOT compiled into
