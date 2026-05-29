@@ -182,3 +182,24 @@ coverage-with-internal/external-linking guideline.
 Sequencing: the substrate cleanup now depends on the Subjects existing
 (at least as holding pages) to link out to. Organic growth — stub the
 Subjects, then lean substrate pages linking to them.
+
+## Backlog — later threads
+
+- **Anthropic / HAICC orbit** (after the substrate phase). The AI
+  collaborator is constitutive of how SPLectrum is built (HAICC = the
+  cognition fabric), so it belongs in the knowledge landscape. Likely:
+  positioning subjects for **large language models** and **AI safety /
+  alignment** (the latter resonates with the philosophy side), plus
+  **Anthropic** / **Claude** and the founders (Dario & Daniela Amodei) as
+  persons — and a **HAICC commitment** on the engineering side (which AI
+  collaborator, and why), mirroring the subject + substrate-commitment
+  pattern. Neutral and on its own terms (including alignment debates and
+  criticism), transparent about the relationship — not advocacy. A
+  distinct thread from the data-infrastructure substrate work.
+- **XPath/URI substrate page** — the "where" substrate page (URI subject
+  exists; XPath technical-only, no subject, DSL cross-ref).
+- **Link-model visibility to the agent** — the engineering layer/link
+  model lives only in spl6 notes; the agent can't see it. Consider
+  putting it into the-world-of-splectrum as a structure note.
+- **Narkhede / Jun Rao** — Kafka co-creators, credited but no page yet;
+  candidates if they recur elsewhere.
