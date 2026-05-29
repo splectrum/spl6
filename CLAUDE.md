@@ -20,6 +20,10 @@ spl6's Chapter 2 produces **prompt docs** for that repo to create/update
 pages — it has its own editorial process, so we don't edit the site
 pages directly from here.
 
+Public documentation is a **core, ongoing workstream** — splectrum.world
+aims to be a reference point for many, so structure and clarity carry
+weight. Working notes and structure decisions: `plan/documentation/`.
+
 ## Mission
 
 spl6 carries spl5's proven mycelium fabric onto P2P
@@ -74,6 +78,9 @@ is proven.
   or outward/cross-repo action. A question about whether
   something is *possible* is not authorization to *do*
   it — get an explicit go on the specifics first.
+- **Don't keep old history.** Clean up spent or
+  superseded working files (e.g. executed prompt files)
+  rather than accumulating dead artifacts.
 
 ## Memory
 

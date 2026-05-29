@@ -13,6 +13,9 @@ folder is the source of truth from here on.
 - **`open-questions/`** — decisions deferred for later, one per file,
   each noting *when* it should be addressed.
 - **`tools/`** — specs for candidate spl tools surfaced along the way.
+- **`references.md`** — running list of external resources (not vetted).
+- **`documentation/`** — working notes/decisions for the splectrum.world
+  docs workstream (engineering-section structure, etc.).
 
 ## Current status (2026-05-29)
 
