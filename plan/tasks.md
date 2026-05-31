@@ -9,10 +9,13 @@ Status: ⬜ pending · 🔄 in progress · ✅ done (drop when stale).
 ## In progress
 
 - 🔄 **Round 1 — managed dev cluster** (`poc/p2p-docker-dev`).
-  Phases 0→4; Phase 0.1 (hello node) and 0.1.1 (slim image) done.
-  Next: **Phase 0.2** — docker-compose + multi-node log aggregation
-  (`docker compose logs -f`), still no P2P.
-  Programme: `p2p-poc-roadmap.md`.
+  Phases 0→4. Done: 0.1 hello node, 0.1.1 slim image, 0.2 watchable cluster
+  (long-running nodes + `init:true` clean shutdown + `capture.sh` merging app
+  stdout and daemon lifecycle into one JSONL session log). **Phase 0 met.**
+  Next: **Phase 1 — peers connect** (private DHT; two nodes join a topic,
+  connect, exchange a hello over the encrypted stream). Brings the first
+  bundled `node_modules` (Hyperswarm) — fold in the deferred `bare-signals`
+  graceful `stop` then. Programme: `p2p-poc-roadmap.md`.
 
 ## Queued
 
