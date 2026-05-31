@@ -4,6 +4,19 @@ How we collaborate on this repo. Update when a new
 convention settles (comes up multiple times, or is
 explicitly agreed).
 
+## Task list lives in the repo
+
+The working task list is `plan/tasks.md`, not the harness task tracker.
+
+**Why:** The harness task list is injected into the context window on every
+turn — it pollutes the view with standing state we don't need always-on. A
+checked-in file is the durable home, survives sessions, and stays out of context
+until consulted.
+
+**How to apply:** Track in-flight and queued work in `plan/tasks.md`. Don't use
+the harness Task tools for project tracking. (A short-lived harness checklist for
+a single multi-step turn is fine, but clear it — don't let it persist.)
+
 ## Commit pace
 
 Work first, think through, iterate. Commit when a coherent
