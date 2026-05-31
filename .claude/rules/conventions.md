@@ -76,6 +76,10 @@ link. **Target reader: an AI agent consulting the page to act** — give the
 real names/signatures, the gotchas, the relationships, the sources, and
 honest uncertainty markers; that also serves humans. (A wrong fact misleads
 an agent that acts on it, so marking the uncertain matters *more*, not less.)
+This test also governs **depth, structure, and page count** — not just
+content. Split a topic into its own page when an agent would come looking
+for *that thing on its own* (a distinct intent); keep it one page when it
+wouldn't. Let "what would an agent want to find?" decide the shape.
 
 ## Pressure-point approach
 
