@@ -11,6 +11,13 @@ work in isolation before integrating.
 > a worked case). These POCs build on that pattern, seeded into
 > `pear-full-square`.
 
+> **Programme:** `../p2p-poc-roadmap.md` organises this as **rounds** (1:
+> managed dev cluster of P2P nodes; 2: script-based test rig — both non-spl;
+> 3: spl on the cluster; + a separate Pear cycle), each phased with open
+> iterations. Round 1 phases: 0 node+monitoring → 1 connect → 2 transport →
+> 3 roles & routing → 4 managed code distribution. The 3.x items map in:
+> 3.1→R1 Phase 2, 3.2/3.3→R1 Phase 3; 3.4 (pear) → the Pear cycle.
+
 ### 3.1 AVRO RPC over Hyperswarm
 
 Minimal: two Bare scripts. One creates a `dht.createServer()`, wires
