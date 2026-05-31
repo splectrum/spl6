@@ -22,12 +22,19 @@ folder is the source of truth from here on.
 | Chapter | State |
 |---|---|
 | 1 — Initialisation | ✅ complete (migration baseline + spl6 identity; 73 tests green on TCP) |
-| 2 — Documentation | ▶ in progress — engineering structure + subject phase (AVRO/Git/Kafka/URI/XPath subjects + persons) + substrate layer done; Platform/Mycelium + P2P/Pear pages remaining (see `documentation/`) |
+| 2 — Documentation | ▶ in progress — engineering structure + subject phase (AVRO/Git/Kafka/URI/XPath subjects + persons) + substrate layer done; **remaining scope now Infrastructure pages only** (Pear/Hyperswarm/Hypercore/P2P-security/Bare) — Platform deferred to Ch5–7 |
 | 3 — P2P transport POCs | ⬜ |
-| 4 — spl6 integrations | ⬜ |
-| 5 — Infrastructure | ⬜ |
+| 4 — spl6 integrations | ⬜ swarm transport into spl (additive; TCP stays) |
+| 5 — Platform design review | ⬜ ground vision in integrated code + POC insights; distil the mature pillar; produce the design proposal |
+| 6 — Platform documentation | ⬜ render the settled design on splectrum.world; carries the spl5→spl6 retrospective |
+| 7 — Platform implementation | ⬜ realise the reviewed design in code |
+| 8 — Infrastructure | ⬜ private swarm, HiveRelay, git-on-Hyperdrive (production infra — last) |
 
-Order: migration → documentation → POCs → integration.
+Order: migration → documentation (infra) → POCs → integration →
+platform (review → document → implement) → infrastructure. Platform
+sits *after* integration deliberately: it is the most transport-
+entangled layer, so the POCs and the integration teach it what it
+needs, and its mature pillar is distilled rather than rewritten.
 
 ## Open questions
 
@@ -35,8 +42,9 @@ To address *after the POCs* unless noted — see `open-questions/`:
 - `chapter-ordering.md`
 - `test-strategy.md`
 - `bare-for-pear-contribution.md`
-- `client-server-resolution.md` — global `spl` as client-side resolver
-- `code-analysis-before-p2p.md` — harden the migrated base before Ch4
+- `client-server-resolution.md` — global `spl` as client-side resolver;
+  now scheduled into Chapter 5 (Platform design review)
+- (`code-analysis-before-p2p.md` — resolved: absorbed into Chapter 5)
 
 ## Candidate tools
 

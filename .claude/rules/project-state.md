@@ -65,15 +65,36 @@ entries to `flagRegistry` in spl/avsc-rpc/cli/index.js.
 
 ## In progress
 
-Nothing mid-change. Chapter 1 migration is complete; the baseline is the
-clean end-state.
+**Chapter 2 — Documentation (the splectrum.world Infrastructure hub).**
+Substantially built: the landing page + three-heading structure
+(Holepunch / In House / Ecosystem). **Holepunch** = Bare (refreshed) + the
+full P2P building-block stack (17 synthesised pages across storage,
+networking, crypto & security, availability & relays). **Ecosystem** = a
+curated community survey. Authored as prompt docs here, rendered in
+the-world-of-splectrum.
+
+Model settled this round (see `.claude/rules/conventions.md`): synthesised,
+implementation-grade pages kept current by an **agentic freshness check**
+(not thin stubs, not verbatim dumps); **"write for the AI reader, humans
+come free"**; doc prompts carry **content + structure only** (site mechanics
+are the executor's). Freshness-agent spec: `plan/tools/doc-freshness-agent.md`.
+
+Deferred / POC-gated within the hub: **Pear** (post-POC), `pear-full-square`,
+and the **barification cookbook** (all need first-hand POC material). P2P
+test/deployment patterns to seed the POCs:
+`plan/p2p-test-deployment-findings.md`.
+
+Code baseline unchanged — Chapter 1 migration end-state, 73 tests green on TCP.
 
 ## Next up
 
-Chapter sequence (see `initialise/plan.md`):
+Chapter sequence (living plan: `plan/README.md`):
 
-1. **Chapter 2 — Documentation.** Documentation prompts written here,
-   executed by the the-world-of-splectrum repo (in-wonder ref lib).
+1. **Chapter 2 — Documentation.** Infrastructure hub on splectrum.world
+   substantially complete (the Holepunch stack + Ecosystem — see *In
+   progress*). What's left is POC-gated (Pear page; pear-full-square; the
+   barification cookbook) or optional now (stand up the doc-freshness
+   agent). Platform/Mycelium remains the separate Ch5–7 sequence.
 2. **Chapter 3 — P2P transport POCs.** Prove AVRO-over-Hyperswarm,
    namespace-to-topic mapping, multi-peer, pear-runtime updates — in
    isolation, outside spl, before any integration.
@@ -81,6 +102,14 @@ Chapter sequence (see `initialise/plan.md`):
    spl (single peer on DHT, topic registration, distributed dispatch,
    multi-peer, pear-runtime). TCP stays for local dev; `spl-server` →
    `spl-peer` and `lib/rpc-server` drop happen here.
+4. **Chapters 5–7 — Platform.** Design review (ground vision in
+   integrated code + POC insights; distil the mature pillar; resolve
+   client-server resolution + code-grounding) → documentation (render
+   the settled design on splectrum.world; carries the spl5→spl6
+   retrospective) → implementation (realise it). Deferred to here
+   deliberately: Platform is the most transport-entangled layer.
+5. **Chapter 8 — Infrastructure.** Private swarm, HiveRelay,
+   git-on-Hyperdrive — production infra, last.
 
 ### Carried-over backlog (spl5-era, still valid)
 

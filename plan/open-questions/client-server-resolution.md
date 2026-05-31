@@ -1,8 +1,10 @@
 # Open question — Global invocation → client-server resolution
 
-**When to address:** after the POCs, as part of deciding the spl
-implementation. Related: `../tools/doc-dispatch.md`,
-`../chapters/ch3-pocs.md` (§3.2), `../chapters/ch4-integration.md` (§4.3).
+**When to address:** scheduled into **Chapter 5 (Platform design
+review)**, after the POCs and integration. This file holds the canonical
+statement; Chapter 5 settles it. Related: `../tools/doc-dispatch.md`,
+`../chapters/ch3-pocs.md` (§3.2), `../chapters/ch4-integration.md`
+(§4.3), `../chapters/ch5-platform-design-review.md`.
 
 ## The limitation today
 

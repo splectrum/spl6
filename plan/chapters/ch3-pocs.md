@@ -5,6 +5,12 @@
 Standalone proof-of-concept scripts, outside spl. Prove the pieces
 work in isolation before integrating.
 
+> Test/deployment harness basis: `../p2p-test-deployment-findings.md`
+> (local private DHT + structured-stdout peers; the translation-layer /
+> hole-punch principle; contained-vs-distributed modes; home automation as
+> a worked case). These POCs build on that pattern, seeded into
+> `pear-full-square`.
+
 ### 3.1 AVRO RPC over Hyperswarm
 
 Minimal: two Bare scripts. One creates a `dht.createServer()`, wires

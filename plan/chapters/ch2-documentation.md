@@ -30,73 +30,30 @@ decisions, and backlog in `../documentation/engineering-structure.md`):
   subjects.
 - Positioning landing page updated for the engineering angle.
 
-## Remaining
+## Remaining — Infrastructure only
 
-Platform/Mycelium rework (the substrate source copies in
-`../documentation/content/` are the input), plus the original doc items
-below:
+**Platform/Mycelium is deferred** to a dedicated post-POC sequence
+(Chapters 5–7: design review → documentation → implementation). It is
+the most transport-entangled layer, the POCs and integration will
+surface what it actually needs, and the existing pillar is a mature
+draft to *distil* rather than rewrite — so it waits until the code and
+the vision have caught up. The substrate source copies in
+`../documentation/content/` are its input. The spl5→spl6 retrospective
+(was item 2.6 below) moves to Chapter 6 with it.
 
-### 2.1 Pear page rewrite
+Chapter 2's remaining scope is therefore the **Infrastructure** pages —
+reframed (May 2026) from a handful of pages into a **deep, steward-minded
+documentation hub** on the bare + P2P + Pear stack: a community resource,
+still the Infrastructure layer, neutral voice, structured for easy
+refresh rounds. The full structure, page map, vision, information-
+availability assessment, corrections, and refresh model are in
+**`../documentation/infrastructure-hub.md`** (anchored on a late-May-2026
+live research pass).
 
-Current `pear.md` describes the old `pear run` model (deprecated June
-2026). Full rewrite for the library approach:
-- pear-runtime as embeddable library
-- Constructor, API (ready/close/run/updater)
-- P2P updates via Hyperdrive
-- Worker execution
-- Migration from `pear run` (lower priority, separate page)
-- Links: github.com/holepunchto/pear-runtime, docs.pears.com
+Foundation-first (what the Chapter 3 POCs need): HyperDHT + Hyperswarm,
+Hypercore + Corestore, Pear platform + pear-runtime, and the key-model /
+security basics. The rest (Autobase, UDX, relays, full ecosystem, the
+"currently building" section linking pear-full-square POCs) fills in
+parallel.
 
-### 2.2 Hyperswarm / HyperDHT page (new)
-
-Peer discovery and networking. Doesn't exist on the site yet.
-- Topic-based peer discovery
-- DHT architecture (public mainnet, private, hybrid)
-- Bootstrap nodes — default public, custom for private swarms
-- Noise protocol end-to-end encryption
-- UDP hole-punching
-- splectrum.world private swarm setup
-
-### 2.3 Hypercore / Hyperdrive page (new)
-
-Distributed storage primitives. Doesn't exist on the site yet.
-- Hypercore: append-only log, public key identity, replication
-- Hyperdrive: filesystem on Hypercores
-- Hyperbee: B-tree on Hypercore
-- Corestore: multi-core management
-- Crypto model: discovery keys vs public keys vs encryption keys
-- Traffic analysis surface
-
-### 2.4 P2P security model page (new)
-
-Doesn't exist on the site. Full security picture:
-- Cryptographic access control (Ed25519, Noise)
-- DHT visibility — public vs private swarms
-- Metadata leakage (connection patterns, block sizes, timing)
-- Private swarm as mitigation
-- VPN/overlay as additional layer
-- Key management responsibilities
-- HiveRelay blind storage model
-
-### 2.5 Bare pages — version refresh
-
-Existing pages are structurally accurate. Needs:
-- Module catalog version bump (verified April → verify current)
-- Fix stale links (docs.pear.sh → docs.pears.com, broken .html paths)
-- Add `--inspect-port` flag (missing from CLI table)
-- Check for any new modules added upstream since April
-
-### 2.6 spl5 retrospective / spl6 direction page (new)
-
-What spl5 proved, what carries forward, what P2P transport changes.
-For the engineering section of the site:
-- Fabric concepts proven (stream record, dispatch, boundary packing)
-- Transport shift (TCP → Hyperswarm)
-- Location transparency (namespace path → swarm topic)
-- Connection to the Splectrum vision
-
-### 2.7 bare-for-pear module pages — complete gaps
-
-The April submission (git, rpc-server, testing pages) was written in
-spl5 but never landed on the site. Assess what's still accurate,
-update for spl6 context, resubmit.
+Note: the spl5→spl6 retrospective (was item 2.6) moved to Chapter 6.

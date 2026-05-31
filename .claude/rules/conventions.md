@@ -31,6 +31,52 @@ for the content — don't force alignment with existing ref
 lib page style. Leave open areas explicitly marked rather
 than forcing premature answers.
 
+## Doc prompts carry content, not site mechanics
+
+Prompts we author for `the-world-of-splectrum` carry **content and
+conceptual structure only**. Leave **all site mechanics to the executor** —
+URLs, redirects / link preservation, navigation, sitemap, breadcrumbs,
+frontmatter fields, and physical file/directory layout. Likewise, never
+reference spl6-internal paths or files in a prompt — the executor can't see
+them.
+
+**Why:** It has derailed the executor more than once — internal
+source-of-truth paths, and a `pear.md`→`pear/` "redirect" that the site
+treated as a non-issue anyway. Content/substance is ours; repo specifics and
+voice are theirs. Prescribing site mechanics sends the agent chasing
+non-problems.
+
+**How to apply:** State *what* the page says and *how it's grouped*. Don't
+state where files go, how URLs are preserved, or how nav/frontmatter is
+updated. If a structural change has site implications, trust the executor to
+handle them — and make the prompt self-contained (no external references).
+
+## Synthesise reference docs properly; an agent keeps them fresh
+
+For the engineering reference docs (e.g. the Infrastructure hub), prefer
+**proper synthesised, implementation-grade pages** — our orientation and
+structure + the gotchas + enough to implement from — over thin link-stubs
+*or* verbatim upstream dumps. Accuracy against fast-moving upstream is held
+by a **recurring freshness agent** (`plan/tools/doc-freshness-agent.md`)
+that re-pulls each page's listed sources, diffs, auto-fixes mechanical
+drift, and flags judgment calls — plus the same source-check at authoring.
+
+**Why:** "Stay lean / don't clone to avoid maintenance" assumed *manual*
+upkeep. With an agent doing freshness, depth is maintainable and drift
+stops being a reason to keep pages thin. The drift/errors we hit (libjs,
+versions, crypto) were authoring slips a source-check catches — not a case
+against depth. The real anti-pattern is hand-writing a parallel spec **and
+never re-checking it**; the fix is the re-check, not thinness.
+
+**How to apply:** every reference page carries a Sources block (canonical
+docs + repo/README + npm) — that's the anchor the agent re-checks. Author
+against those sources; schedule the freshness agent to keep them current.
+Link out for exhaustive API detail, but don't ship a page that's just a
+link. **Target reader: an AI agent consulting the page to act** — give the
+real names/signatures, the gotchas, the relationships, the sources, and
+honest uncertainty markers; that also serves humans. (A wrong fact misleads
+an agent that acts on it, so marking the uncertain matters *more*, not less.)
+
 ## Pressure-point approach
 
 We deliberately defer some infrastructure investments
@@ -47,6 +93,39 @@ do the proper investment, not a workaround. Track deferred
 items on the roadmap *with their reason* so the reason can
 be re-evaluated later — if the reason still applies, the
 item can't quietly fall off.
+
+## Settled vision on paper, calibrated
+
+Put settled vision on paper — for public docs (a "reference point for
+many") the logical design legitimately *leads* the code. But write only
+what has **settled**, at a resolution that holds, and leave still-moving
+parts **explicitly open** rather than prematurely pinned.
+
+**Why:** Docs drifting from code is not a docs-ahead-of-code flaw — it's
+evolution; short iterations clarify things. The failure mode is *over-
+elaboration*: writing speculative detail at a resolution that hasn't
+settled, which the next iteration then contradicts. The previous Platform
+cycle overdid it.
+
+**How to apply:** Decide what has settled before writing it (Chapter 5's
+design review is the explicit gate for the Platform work). Mark open
+parts open. Expect docs to be revised as iterations teach more — that's
+the method, not drift.
+
+## Distillation, not demolition
+
+When reworking mature material (e.g. the three-pillar structure, Mycelium
+in particular), *extract and ground* the matured core — don't rediscover
+it from scratch.
+
+**Why:** Earned structure carries real settled thinking. A "from the
+ground up" rework means grounding the vision in the implemented code, not
+blank-slating an asset that already holds.
+
+**How to apply:** Sort existing content into mature-core (keep/distil),
+over-elaborated (trim to settled), and drifted/open (reconcile or mark
+open). New writing concentrates on genuine gaps and the weave points, not
+re-deriving what stands.
 
 ## Memory flow: session bank → repo
 
