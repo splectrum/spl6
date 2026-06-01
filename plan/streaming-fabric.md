@@ -80,6 +80,50 @@ single-writer-per-topic vs Autobase as a per-attachment choice; consumer-group-s
 coordination (partition assignment, committed offsets) if/when needed — not in
 Hypercore, build only if pressure surfaces.
 
+## Storage model — native store, filesystem as a checkout (direction settled; migration open)
+
+The end-state inverts spl's current filesystem-native storage: make the **log
+family the native source of truth** and demote the OS filesystem to a **derived,
+unpacked working view** — exactly git's object-store-vs-working-tree split.
+
+- **Native (truth):** Hypercore (the base log) → **Hyperbee** (key→value index) and
+  **Hyperdrive** (paths→files) as the canonical reusable views over logs. These are
+  the native components.
+- **Derived (projection):** the **OS filesystem** = *unpack* a Hyperdrive to disk
+  when real files are needed; *re-pack* changes back in. A checkout/cache, not the
+  source. (A projection of a projection — Hyperdrive is already a view over logs.)
+
+**Git mirror (the precedent).** git's object store = truth, working tree = a
+checkout you edit then `commit` back. Straight across: Hyperdrive ≈ object store;
+OS files ≈ working tree; unpack ≈ checkout; re-pack ≈ add/commit. SPLectrum already
+carries the **Git substrate Subject** and the **two-reality (repo vs subtree)**
+model, so "source store + working projection" is native thinking — the move is just
+"the source store is a Hyperdrive, not a `.git`."
+
+**Block content is opaque (what makes it universal).** A Hypercore block is just
+bytes; meaning is imposed above the log. For spl that block is an **AVRO
+stream-record** (`key + value + headers`), the **descriptor headers** carrying its
+type — so one log can carry many record types, and the schema lives above the log
+(AVRO + `uri-schema`), not in it. That's why any data domain rides the same substrate.
+
+**Addressing fits the existing URI/XPath model.** The native store is addressed by
+**URI** (where + visibility + op) and **XPath** (which records + into them); a log
+adds a **sequence/time axis** (offset / replay / `last()` / typed-filter), and a
+live tail query *is* a subscription. The unpacked filesystem **mirrors the same
+paths**, so the checkout is browsable by the same addresses as the source
+(URI path ≈ Hyperdrive path ≈ working-tree path).
+
+**Gains:** versioning + time-travel (offsets), verifiability (Merkle, trust = key),
+P2P replication (the store *is* the distribution), streaming (tail = subscribe), one
+source of truth across peers.
+
+**Costs / open:** most tooling expects real files → a smooth checkout or FUSE-mount
+(perf caveats); writes become edit-working-view-then-commit (more power, less
+it-just-writes); dev ergonomics must stay frictionless. And it **inverts spl6's
+current fs-native storage** — a Mycelium/Platform-era migration, *not* a spl6
+retrofit. spl6 stays fs-native; this is the storage model the data fabric converges
+to (Round 3 → Platform inherits it deliberately).
+
 ## Where it acts
 
 - **Round 3 (spl on the cluster)** — stream-record meets Hypercore: the fabric's
@@ -94,6 +138,10 @@ Hypercore, build only if pressure surfaces.
 
 - **Settled:** streaming at heart; log-as-substrate; Kafka↔Hypercore mapping; the
   broker→single-writer trade; consistency = single-writer + Autobase, no consensus.
+- **Settled (storage):** native store = the log family (Hypercore → Hyperbee /
+  Hyperdrive); OS filesystem = a derived, re-packable checkout, git-mirrored.
 - **Open:** retention/compaction policy + snapshot-rotate; multi-writer-per-topic
   choice; the attachable streaming component's boundary + API; consumer-group
-  coordination (defer until needed).
+  coordination (defer until needed); the fs-native→drive-native migration +
+  checkout/mount round-trip; the XPath sequence/time axis (replay / tail / subscribe)
+  and append-vs-set `put` semantics.
