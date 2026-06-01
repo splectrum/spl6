@@ -11,12 +11,14 @@ Status: ⬜ pending · 🔄 in progress · ✅ done (drop when stale).
 - 🔄 **Round 1 — managed dev cluster** (`poc/p2p-docker-dev`).
   Phases 0→4. Done: 0.1 hello node, 0.1.1 slim image, 0.2 watchable cluster,
   **1.0 peers connect** (private DHT, `firewalled:false` direct — holepunch is
-  for NAT traversal and fails on a no-NAT bridge; trace:
-  `journey/phase-1-peers-connect.md`), **2.0 avsc-rpc over the swarm** (Echo RPC
-  round-trips over the encrypted stream via `createChannel(conn)` — same call spl
-  uses over TCP; correlation id threaded through, appears in both peers' streams).
-  Module fix: avsc/avsc-rpc forks now declare deps (pushed to bare-for-pear);
-  image clones them via https (npm git-deps fragile). Probes under `poc/.../probes/`.
+  for NAT traversal and fails on a no-NAT bridge), **2.0 avsc-rpc over the swarm**
+  (Echo RPC round-trips over the encrypted stream via `createChannel(conn)` — same
+  call spl uses over TCP; correlation id threaded through, appears in both peers'
+  streams). Module fix: avsc/avsc-rpc forks now declare deps (pushed to
+  bare-for-pear); image clones them via https (npm git-deps fragile).
+  **Repo is restructured: one self-contained folder per phase** (own README/code/
+  scripts/logs/probes) + a top README (product + journey). Each phase's story is
+  its `README.md`.
   Next: **Phase 3 — roles & routing** (name→topic; a node announces what it
   serves; a client resolves name→topic→peer; multi-peer + no-peer fallback).
   Programme: `p2p-poc-roadmap.md`.
