@@ -19,6 +19,13 @@ Status: ⬜ pending · 🔄 in progress · ✅ done (drop when stale).
   Next: **Phase 2 — avsc-rpc over Hyperswarm** (round-trip an AVRO RPC message
   over the P2P stream). Programme: `p2p-poc-roadmap.md`.
 
+- 🔄 **Operational visibility** (`observability-design.md`). Design settled at the
+  model level (researched + verified under Bare: pino-bare, hypertrace; gaps:
+  no off-the-shelf cross-peer correlation). Principle: instrument at the fabric
+  seams, emit a leveled, correlation-carrying event stream. **Acts at Phase 2** —
+  introduce correlation ids as avsc-rpc first crosses peers; adopt the event
+  schema + levels now. Open call: own thin pino-schema emitter vs adopt pino-bare.
+
 ## Queued
 
 - ⬜ **Stand up the doc-freshness agent routine.** Spec is validated
