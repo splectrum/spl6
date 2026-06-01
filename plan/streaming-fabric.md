@@ -124,6 +124,42 @@ current fs-native storage** — a Mycelium/Platform-era migration, *not* a spl6
 retrofit. spl6 stays fs-native; this is the storage model the data fabric converges
 to (Round 3 → Platform inherits it deliberately).
 
+## The checkout, concretely: a Hyperdrive cache over the git object store
+
+Realises "filesystem as a checkout" *performantly*. The working tree is a
+**Hyperdrive cache over the git object store** — the GVFS/Scalar pattern (virtual
+working tree, hydrate-on-demand, track changes to commit back), with Hyperdrive as
+the cache layer. It maps onto git's own architecture: **git object store** =
+committed truth; **Hyperdrive** = working tree + index (the fast, versioned,
+addressable read/write surface).
+
+Two directions:
+- **cached-read (hydrate)** — reads hit the Hyperdrive (indexed, fast, cached, P2P),
+  *not* git. Populate from git objects **lazily** (on read-miss, for big trees) or
+  **eagerly** (full checkout). git's slow tree-walk runs only at hydration, never per
+  read — which dissolves the "git is slow for live reads" problem.
+- **update-commit (harvest)** — writes go to the drive (fast). The drive's own
+  **version-delta since the last commit-point *is* the changeset**: because the cache
+  is itself a versioned log, diffing `checkout(lastVersion)` vs `version` yields the
+  add/modify/delete set for free → write git objects + commit. (Cleaner than GVFS,
+  which tracks modified paths explicitly.) git advancing (pull/merge) → re-hydrate the
+  affected drive paths.
+
+**Gotchas:** cache coherence on git advance (re-hydrate); merge stays git's 3-way (no
+Autobase for solo edit→commit→share); concurrent *live* co-editing of one drive →
+single-writer → Autobase (the consensus case); mapping fidelity (modes, symlinks,
+empty dirs, binaries → git's model); what replicates (git store = canonical/shareable;
+drive cache = working/local).
+
+**Testing fallback — the standard fs representation is the oracle.** The checkout is
+an *interface* with two implementations: **(a)** the **standard on-disk representation**
+— a real `.git` + a hydrated OS working tree — the well-understood reference; **(b)**
+the **Hyperdrive cache over git** — the P2P implementation. They must be
+behavior-equivalent, so we develop and test against (a) (plain git semantics, no
+Hyperdrive) and swap in (b) behind the same interface, asserting identical results.
+The standard repo is both the **fallback** during development and the **correctness
+oracle** for the Hyperdrive cache.
+
 ## Where it acts
 
 - **Round 3 (spl on the cluster)** — stream-record meets Hypercore: the fabric's
@@ -139,9 +175,13 @@ to (Round 3 → Platform inherits it deliberately).
 - **Settled:** streaming at heart; log-as-substrate; Kafka↔Hypercore mapping; the
   broker→single-writer trade; consistency = single-writer + Autobase, no consensus.
 - **Settled (storage):** native store = the log family (Hypercore → Hyperbee /
-  Hyperdrive); OS filesystem = a derived, re-packable checkout, git-mirrored.
+  Hyperdrive); OS filesystem = a derived, re-packable checkout, git-mirrored. The
+  performant checkout = a **Hyperdrive cache over the git object store** (hydrate on
+  read, harvest the drive's version-delta on commit), with the **standard `.git` +
+  working tree as the dev fallback / test oracle** (one interface, two implementations).
 - **Open:** retention/compaction policy + snapshot-rotate; multi-writer-per-topic
   choice; the attachable streaming component's boundary + API; consumer-group
-  coordination (defer until needed); the fs-native→drive-native migration +
-  checkout/mount round-trip; the XPath sequence/time axis (replay / tail / subscribe)
+  coordination (defer until needed); the fs-native→drive-native migration;
+  lazy-vs-eager hydration + cache coherence; concurrent live co-editing (drive
+  multi-writer → Autobase); the XPath sequence/time axis (replay / tail / subscribe)
   and append-vs-set `put` semantics.
