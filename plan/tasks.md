@@ -37,6 +37,15 @@ Status: ⬜ pending · 🔄 in progress · ✅ done (drop when stale).
   access), the seam-level instrumentation, and graduating the emitter to a
   shared component.
 
+- 🔄 **Streaming fabric — log as substrate** (`streaming-fabric.md`). Settled
+  direction: SPLectrum is streaming at heart; the log is the substrate;
+  Kafka↔Hypercore (single-writer logs + Autobase, ordering decentralised, no
+  consensus). The streaming/topic setup should become a reusable component other
+  repos + substrate types attach to (topic/append/replay/subscribe over
+  stream-records + AVRO). Open: retention/compaction (Hypercore has sparse +
+  clear/truncate but no built-in retention), multi-writer-per-topic choice,
+  component API. Acts at Round 3 (spl on cluster) → Platform (Mycelium) → Ch 8.
+
 ## Queued
 
 - ⬜ **Stand up the doc-freshness agent routine.** Spec is validated
