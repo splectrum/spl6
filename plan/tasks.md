@@ -9,13 +9,15 @@ Status: ⬜ pending · 🔄 in progress · ✅ done (drop when stale).
 ## In progress
 
 - 🔄 **Round 1 — managed dev cluster** (`poc/p2p-docker-dev`).
-  Phases 0→4. Done: 0.1 hello node, 0.1.1 slim image, 0.2 watchable cluster
-  (long-running nodes + `init:true` clean shutdown + `capture.sh` merging app
-  stdout and daemon lifecycle into one JSONL session log). **Phase 0 met.**
-  Next: **Phase 1 — peers connect** (private DHT; two nodes join a topic,
-  connect, exchange a hello over the encrypted stream). Brings the first
-  bundled `node_modules` (Hyperswarm) — fold in the deferred `bare-signals`
-  graceful `stop` then. Programme: `p2p-poc-roadmap.md`.
+  Phases 0→4. Done: 0.1 hello node, 0.1.1 slim image, 0.2 watchable cluster,
+  **1.0 peers connect** (private DHT bootstrap + two nodes join a topic and
+  exchange a hello over the encrypted stream, bidirectional; deps bundled under
+  Bare; `bare-signals` graceful stop). **Key fix:** flat bridge has no NAT, so
+  nodes run the DHT `firewalled:false` and connect directly — holepunch is for
+  NAT traversal and fails on a no-NAT net (full trace:
+  `poc/.../journey/phase-1-peers-connect.md`). Probes kept under `poc/.../probes/`.
+  Next: **Phase 2 — avsc-rpc over Hyperswarm** (round-trip an AVRO RPC message
+  over the P2P stream). Programme: `p2p-poc-roadmap.md`.
 
 ## Queued
 
