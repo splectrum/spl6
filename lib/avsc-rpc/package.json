@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "services.js",
   "dependencies": {
-    "avsc": "github:bare-for-pear/avsc",
+    "avsc": "git+https://github.com/bare-for-pear/avsc.git",
     "streamx": "^2.26.0",
     "bare-buffer": "^3.6.0",
     "bare-events": "^2.8.2",
