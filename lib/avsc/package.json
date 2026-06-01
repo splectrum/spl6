@@ -1,1 +1,11 @@
-{ "name": "avsc", "main": "lib/index.js" }
+{
+  "name": "avsc",
+  "version": "5.8.0",
+  "main": "lib/index.js",
+  "dependencies": {
+    "bare-crypto": "^1.13.4",
+    "bare-fs": "^4.7.0",
+    "bare-path": "^3.0.0",
+    "bare-stream": "^2.13.0"
+  }
+}
