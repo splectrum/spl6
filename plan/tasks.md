@@ -16,21 +16,24 @@ Status: ⬜ pending · 🔄 in progress · ✅ done (drop when stale).
   call spl uses over TCP; correlation id threaded through, appears in both peers'
   streams). Module fix: avsc/avsc-rpc forks now declare deps (pushed to
   bare-for-pear); image clones them via https (npm git-deps fragile).
-  **Repo is restructured: one self-contained folder per phase** (own README/code/
-  scripts/logs/probes) + a top README (product + journey). Each phase's story is
-  its `README.md`.
-  Next: **Phase 3 — roles & routing** (name→topic; a node announces what it
-  serves; a client resolves name→topic→peer; multi-peer + no-peer fallback).
-  Programme: `p2p-poc-roadmap.md`.
+  **3.0 roles & routing** (nodes serve named services; clients route name→topic→peer;
+  multi-peer + no-peer fallback; thin pino-schema emitter folded in — leveled,
+  correlation id across peers). **Repo restructured: one self-contained folder per
+  phase** + a top README (product + journey).
+  Next: **Phase 4 — managed code distribution & responsibilities** (a manager
+  seeds role-code on a Hyperdrive; nodes pull + run it, trust = signed key; "what
+  runs where" data-driven). Programme: `p2p-poc-roadmap.md`.
 
 - 🔄 **Operational visibility** (`observability-design.md`). Design settled at the
   model level (researched + verified under Bare: pino-bare, hypertrace; gaps:
   no off-the-shelf cross-peer correlation). Principle: instrument at the fabric
   seams, emit a leveled, correlation-carrying event stream. **Graduated, two-tier:**
   production = minimal detect/localize; full diagnosis escalated in isolated
-  reproductions (probes are the Tier-2 vehicle). Decided: own a thin pino-schema
-  emitter. **Acts at Phase 2** — introduce correlation ids as avsc-rpc first
-  crosses peers; adopt the event schema + levels now.
+  reproductions (probes are the Tier-2 vehicle). **Thin pino-schema emitter built
+  in Phase 3** (`phase-3-roles-routing/log.js`: levels, `.child()` correlation
+  context, `--debug` dial). Still open: env-driven `LOG_LEVEL` (needs Bare env
+  access), the seam-level instrumentation, and graduating the emitter to a
+  shared component.
 
 ## Queued
 
