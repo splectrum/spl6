@@ -16,13 +16,15 @@ Status: ⬜ pending · 🔄 in progress · ✅ done (drop when stale).
   call spl uses over TCP; correlation id threaded through, appears in both peers'
   streams). Module fix: avsc/avsc-rpc forks now declare deps (pushed to
   bare-for-pear); image clones them via https (npm git-deps fragile).
-  **3.0 roles & routing** (nodes serve named services; clients route name→topic→peer;
-  multi-peer + no-peer fallback; thin pino-schema emitter folded in — leveled,
-  correlation id across peers). **Repo restructured: one self-contained folder per
-  phase** + a top README (product + journey).
-  Next: **Phase 4 — managed code distribution & responsibilities** (a manager
-  seeds role-code on a Hyperdrive; nodes pull + run it, trust = signed key; "what
-  runs where" data-driven). Programme: `p2p-poc-roadmap.md`.
+  **3.0 roles & routing** (RPC 1:1 — named services, route name→topic→peer;
+  multi-peer + no-peer fallback; thin pino-schema emitter folded in), **4.0
+  pub/sub mesh** (1:many — every member server+client, one emits, others receive,
+  no hub; the contrast to the RPC primitive). **Repo restructured: one
+  self-contained folder per phase** + a top README (product + journey).
+  Next: **managed code distribution & responsibilities** (a manager seeds
+  role-code on a Hyperdrive; nodes pull + run it, trust = signed key; "what runs
+  where" data-driven) — the next POC phase folder. Programme: `p2p-poc-roadmap.md`
+  (pub/sub was added as a contrast primitive beyond the original phase list).
 
 - 🔄 **Operational visibility** (`observability-design.md`). Design settled at the
   model level (researched + verified under Bare: pino-bare, hypertrace; gaps:
