@@ -4,6 +4,26 @@ How we collaborate on this repo. Update when a new
 convention settles (comes up multiple times, or is
 explicitly agreed).
 
+## POC journey is kept; the installable graduates clean
+
+While POCing, the full developmental journey is first-class and **committed** —
+every step, iteration, probe and scratch. The value of a POC is the traceable
+path: when something later changes or breaks, you can follow how it came to be.
+When the package settles it becomes an **installable item** extracted from the
+repo, and at that point it **sheds the historical journey**.
+
+**Why:** During development, tracing *why* a thing is shaped the way it is (what
+was tried, what failed, what the runtime actually does) is worth more than a
+tidy tree. After it settles, the installable form shouldn't drag that history.
+
+**How to apply:** Keep two layers. (1) *Developmental record* — `journey/`
+(narrative + a committed full run log per phase) and `probes/` (re-runnable
+de-risking setups, each with a committed `run.log`). Commit these. (2)
+*Installable core* — the clean files that graduate. Only **generated** output
+stays uncommitted (images, `node_modules`, ad-hoc capture logs); a representative
+**run log is always committed** so any execution can be checked without re-running.
+At graduation, extract the core and drop the journey.
+
 ## Task list lives in the repo
 
 The working task list is `plan/tasks.md`, not the harness task tracker.

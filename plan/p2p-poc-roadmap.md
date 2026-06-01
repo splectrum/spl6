@@ -29,6 +29,29 @@ harness patterns in `p2p-test-deployment-findings.md`.
 running cluster), Round 2 the **test** stage (automated testing) — the same
 dev→test→preprod→prod lifecycle Pear later manages end-to-end.
 
+## Invariant — the application owns all runtime code
+
+The cluster is a single trust domain. A node only ever runs code that
+originated from the application's own signed source; **no code is pulled from
+elsewhere at runtime.** The swarm carries discovery and transport, never code
+provenance from strangers (no "discover an unknown peer, pull its code, run it").
+
+Two layers, both owned:
+- **App role-code** — authored here; owned by definition.
+- **Third-party deps** (Hyperswarm, avsc, …) — *absorbed* into the owned
+  artifact at **build/bundle time** (vendored / barified / bare-pack), so at
+  runtime nothing foreign is fetched. npm is a build-time supply-chain concern
+  (pin / vendor), not a runtime dependency.
+
+**Trust anchor = a signed key.** Managed code distribution (Phase 4) seeds the
+app's *own* role-code into a signed Hyperdrive; nodes pull only from the key
+they trust — the app's identity, the same way a Pear app is trusted by its key.
+The private DHT bootstrap is a discovery rendezvous, not a code source.
+
+Cross-application code sharing (trusting another org's signed key) is a
+deliberate, separate decision — out of scope here; the default is total
+app-ownership of everything that runs.
+
 ## Round 1 — setup (constant across its phases)
 
 - **Straight Bare, native P2P** — nodes are Bare processes.
