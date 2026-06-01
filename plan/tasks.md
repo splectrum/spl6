@@ -22,9 +22,11 @@ Status: ⬜ pending · 🔄 in progress · ✅ done (drop when stale).
 - 🔄 **Operational visibility** (`observability-design.md`). Design settled at the
   model level (researched + verified under Bare: pino-bare, hypertrace; gaps:
   no off-the-shelf cross-peer correlation). Principle: instrument at the fabric
-  seams, emit a leveled, correlation-carrying event stream. **Acts at Phase 2** —
-  introduce correlation ids as avsc-rpc first crosses peers; adopt the event
-  schema + levels now. Open call: own thin pino-schema emitter vs adopt pino-bare.
+  seams, emit a leveled, correlation-carrying event stream. **Graduated, two-tier:**
+  production = minimal detect/localize; full diagnosis escalated in isolated
+  reproductions (probes are the Tier-2 vehicle). Decided: own a thin pino-schema
+  emitter. **Acts at Phase 2** — introduce correlation ids as avsc-rpc first
+  crosses peers; adopt the event schema + levels now.
 
 ## Queued
 

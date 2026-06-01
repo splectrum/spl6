@@ -25,6 +25,35 @@ Conflating these is the trap:
    streams stitch together. This is distributed-tracing territory — the
    genuinely P2P-hard part, and the heart of the requirement.
 
+## Core principle: graduated instrumentation — production detects, isolation diagnoses
+
+Production carries only enough instrumentation to **detect and localize** a
+problem — a small, always-on, low-overhead operational event set ("something is
+wrong, and roughly where"). It does **not** carry the heavy instrumentation
+needed to fully *resolve* an issue. Diagnosis happens by **escalating
+instrumentation in an isolated reproduction**: dial the level up, switch on
+hypertrace, turn on full trace/data collection, and replay the scenario — heavy
+instrumentation is **opt-in and ephemeral, never a production tax**. This
+explicitly rejects running a heavy, high-overhead observability stack in
+production just to be able to resolve issues there.
+
+Two tiers:
+
+- **Tier 1 — production (always-on, minimal):** leveled operational lifecycle
+  events at the seams (connect / disconnect / error-with-reason / route), plus
+  cheap correlation ids (connection/op id) so a cross-peer problem can be
+  *localized*. Cardinality and overhead kept to a budget. Goal: *detect + locate*.
+- **Tier 2 — investigation (on-demand, full, isolated):** dial levels to
+  debug/trace, switch on hypertrace (~zero overhead when off — built for exactly
+  this), collect full traces and full data, reproduce in isolation. Goal:
+  *diagnose + resolve*. Lives in the investigation, not in production.
+
+**The probe/scenario model is the Tier-2 vehicle.** The committed, re-runnable
+probes (`poc/.../probes/`, `journey/` run logs) are precisely "instrument it in
+and investigate in isolation": a Tier-1 signal points at a subsystem; you
+reproduce it as a probe with full instrumentation switched on. Observability and
+the probe convention are the same discipline from two ends.
+
 ## What the ecosystem gives us (verified under Bare — see probe)
 
 `poc/p2p-docker-dev/probes/observability-under-bare/` confirms, on the cluster's
@@ -46,22 +75,25 @@ internals.
 
 Five layers, mostly assembled from existing parts + one piece that is ours:
 
-1. **Event schema + per-node logging.** Adopt **pino's schema** (level, time,
-   structured fields, `msg`) and child/bound-context loggers. **Recommendation:
-   own a thin pino-schema-compatible emitter** rather than depend on pino-bare —
-   it's a *foundational* concern, pino-bare is early/lightly-maintained, and we
-   own runtime code (the roadmap invariant). Staying pino-format-compatible keeps
-   pino's tooling (pretty-printers, transports, shippers) available, and we can
-   swap to pino-bare/pino if it matures. *(open: own-emitter vs adopt pino-bare.)*
+1. **Event schema + per-node logging — DECIDED: own a thin emitter.** Adopt
+   **pino's schema** (level, time, structured fields, `msg`) and child/bound-context
+   loggers, but **own a thin pino-schema-compatible emitter** rather than depend
+   on pino-bare — it's a *foundational* concern, pino-bare is early/lightly-
+   maintained, and we own runtime code (the roadmap invariant). Staying
+   pino-format-compatible keeps pino's tooling (pretty-printers, transports,
+   shippers) available, and we can swap to pino-bare/pino if it matures. This is
+   the **Tier-1** carrier: at `info` it's the minimal production set; the level
+   dial is the first Tier-2 escalation lever.
 2. **Cross-peer correlation — OURS, at the fabric seams.** No off-the-shelf
    answer. Thread a correlation context (trace/op id + connection id + the peer
    keys we already have) through the protocol/RPC, emitted **once at the
    transport/dispatch seams**. Borrow the distributed-tracing model (trace id →
    span → parent span) *lightly* — swarm-appropriate, not full OpenTelemetry.
    *(open: exact id scheme + how it rides the protocol — settles at Phase 2.)*
-3. **Within-process deep tracing — hypertrace, opt-in.** Use it to instrument
-   *our* fabric classes (transport, dispatch, execute) for a deep dive; ~zero
-   overhead when off; Prometheus export available. Not always-on.
+3. **Within-process deep tracing — hypertrace, the Tier-2 instrument.** Switched
+   on during investigation to trace *our* fabric classes (transport, dispatch,
+   execute); ~zero overhead when off (built for exactly this graduated model);
+   Prometheus export available. Off in production.
 4. **Live debugging — pear-inspect / `pear --log`** once we're on Pear.
 5. **Collection / query — deferred (pressure-timed).** The cross-run/cross-peer
    aggregation+comparison gap (felt during the Phase 1 bisect). Options when it
@@ -81,17 +113,20 @@ This fits the architecture we already have rather than fighting it.
 
 ## Settled enough to adopt now
 
+- **Graduated, two-tier** (above): production = minimal detect/localize; full
+  diagnosis is escalated in isolated reproductions (probes). No heavy prod stack.
+- **Own a thin pino-schema emitter** (Tier-1 carrier) — decided.
 - **Levels:** `trace/debug/info/warn/error`; operational lifecycle events are
-  `info`; default threshold `info`, dialled by env.
+  `info`; default production threshold `info`, dialled up for investigation.
 - **Format:** one JSON object per line, pino-compatible (`level`, `time`, plus our
   fields); stdout is the substrate (Phase 0.2 model). Daemon-layer (docker events)
   stays the authority for liveness/exit, merged by the capture tool.
 
 ## Open (settle as code teaches us)
 
-- Own thin emitter vs adopt `pino-bare` (foundational call — confirm with Jules).
 - Correlation-id scheme + protocol propagation (settles when avsc-rpc crosses
-  peers — **Phase 2**).
+  peers — **Phase 2**). Keep it cheap enough to stay Tier-1 (ids on events); the
+  full span/trace tree is Tier-2.
 - Whether to instrument fabric classes via hypertrace or plain emit at the seams.
 - Collection/query layer choice + when (pressure-timed).
 
