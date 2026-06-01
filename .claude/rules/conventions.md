@@ -37,6 +37,25 @@ until consulted.
 the harness Task tools for project tracking. (A short-lived harness checklist for
 a single multi-step turn is fine, but clear it — don't let it persist.)
 
+## Committed logs are scrubbed; cluster config is parameterised
+
+Execution logs we commit (journey session samples, probe `run.log`s) are first run
+through `scrub.sh` — it partially masks IPv4 addresses (keep network, mask host)
+and long hex tokens (peer keys, topic hashes, container ids) **card-style**: front
+starred, last 4 kept. The same value masks the same way every time, so logs stay
+**correlatable within a run** without leaking full identifiers. Probe `run.sh`s
+pipe through it automatically; session samples are scrubbed when saved to
+`journey/`. Cluster config (addresses / ports / topics) lives in `.env`
+(gitignored) with a committed `.env.example`; nothing environment-specific is
+hardcoded in compose files.
+
+**Why:** committed/public POC repos shouldn't carry environment specifics or
+volatile identifiers — but we still want the execution logs as evidence of what
+runs and works (the journey).
+
+**How to apply:** never commit a raw log — pipe through `scrub.sh` (probe `run.sh`
+already does). Keep config in `.env`; commit only `.env.example`.
+
 ## Commit pace
 
 Work first, think through, iterate. Commit when a coherent
