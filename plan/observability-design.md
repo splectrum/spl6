@@ -54,6 +54,17 @@ and investigate in isolation": a Tier-1 signal points at a subsystem; you
 reproduce it as a probe with full instrumentation switched on. Observability and
 the probe convention are the same discipline from two ends.
 
+**Live, conditional escalation (stream-native).** Escalation needn't always mean
+reproducing in isolation. Because spl treats everything as stream records /
+requests through namespace dispatch, a **monitoring request can be interleaved
+into a live production system**: send a request that conditionally raises
+instrumentation for a *scoped* subset — a peer, a topic, a correlation id, an
+operation type — for a bounded window, with the trace/data streaming back as just
+another stream. Only the targeted subset pays the overhead, only while requested —
+so it stays true to minimal-by-default. This is the in-between of Tier-1 and
+Tier-2: **surgical, on-demand instrumentation on production, no redeploy.** It
+falls out of the request/stream model; noted now to shape dispatch.
+
 ## What the ecosystem gives us (verified under Bare — see probe)
 
 `poc/p2p-docker-dev/probes/observability-under-bare/` confirms, on the cluster's
