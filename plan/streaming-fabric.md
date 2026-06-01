@@ -15,6 +15,33 @@ inside out"). SPLectrum adopts this wholesale — the **stream-record** rides a 
 and Mycelium's state is a view over logs. Kafka-type guarantees are important, so
 we design *toward* them, P2P-native.
 
+## Design principle: minimal base, open implementations (settled)
+
+Get the **base components right and minimal**, then layer the **variable,
+policy-laden concerns as open implementations** — because different use cases have
+different requirements, and baking one policy into the base ossifies it.
+
+- **Base (minimal, correct, no policy):** the single-writer append-only **log**
+  (Hypercore), key-value (Hyperbee), filesystem (Hyperdrive) — and, for version
+  control, **git's single-branch linear core**. No consensus, no merge, no
+  multi-writer in the base. The base is just "an ordered, verifiable, owned log and
+  its derived views."
+- **Open implementations on top (chosen per use case):**
+  - **trust** — key models, membership, transitive trust;
+  - **merging** — none / git 3-way / Autobase deterministic;
+  - **multi-writer** — single-writer base → Autobase only when genuinely needed;
+  - **branching** — single-branch core → branch/merge as a layer.
+
+A config store, a collaborative document, a code repo, and an event stream all want
+*different* consistency / merge / trust — so those are **not** base decisions. The
+base stays simple and right; the use case selects the implementation. This is KISS +
+the pressure-point rule applied to the fabric: don't pay for merge / consensus /
+multi-writer until a use case demands it, and keep the base open so it can.
+
+It mirrors the whole note: single-writer Hypercore (base) ↔ Autobase (multi-writer
+impl); single-branch git (base) ↔ branch/merge (impl); raw log (base) ↔ retention and
+pin-vs-follow references (impls). **Get the base right; keep the rest open.**
+
 ## Kafka ↔ Hypercore (settled)
 
 Hypercore *is* Kreps's log, realised P2P — arguably a purer "just the log" than
@@ -160,6 +187,30 @@ Hyperdrive) and swap in (b) behind the same interface, asserting identical resul
 The standard repo is both the **fallback** during development and the **correctness
 oracle** for the Hyperdrive cache.
 
+## Composition: cascading references (Mycelium — direction settled)
+
+A microservice/repo is a **composite of owned (local) data + referenced remote
+data**, cascading (references reference references). Today that's git **subtrees** —
+vendored *full copies*. On the log family it becomes **references as keys + sparse
+replication**: owned = your own drive's entries; a referenced microservice = another
+drive's key, mounted at a path, hydrated only where accessed. The cascade = nested
+mounts; reading resolves through the mount transparently. (owned vs referenced = the
+two-reality model generalised; the mount is the boundary.)
+
+**Wins over vendored subtrees:** no duplication (keys, not copies); lazy/sparse (only
+accessed slices materialise); dedup across referencers (one source core, many refs);
+**pin a version** (reproducible, lockfile-style) *or* **live-follow** (fresh) per
+reference; verifiable (Merkle, trust = key).
+
+**Trades:** first-access latency (network fetch vs local copy) — mitigated by the
+Hyperdrive cache/hydrate; availability/offline (a ref needs a live source or cached
+copy; owned is always local) → pin + cache critical refs; transitive trust (you trust
+referenced keys — and theirs?); version resolution across a graph of refs (a
+lockfile-like consistent composite + cycle handling).
+
+(Hyperdrive `mount` was a v10 feature; v11 status unverified — the composition model
+holds whether via native mounts or a thin routing layer.)
+
 ## Where it acts
 
 - **Round 3 (spl on the cluster)** — stream-record meets Hypercore: the fabric's
@@ -172,6 +223,9 @@ oracle** for the Hyperdrive cache.
 
 ## Settled vs open (summary)
 
+- **Settled (principle):** minimal correct base (single-writer log + views;
+  single-branch git core), with trust / merge / Autobase / branching as *open
+  implementations* chosen per use case. Get the base right; keep the rest open.
 - **Settled:** streaming at heart; log-as-substrate; Kafka↔Hypercore mapping; the
   broker→single-writer trade; consistency = single-writer + Autobase, no consensus.
 - **Settled (storage):** native store = the log family (Hypercore → Hyperbee /
@@ -179,6 +233,10 @@ oracle** for the Hyperdrive cache.
   performant checkout = a **Hyperdrive cache over the git object store** (hydrate on
   read, harvest the drive's version-delta on commit), with the **standard `.git` +
   working tree as the dev fallback / test oracle** (one interface, two implementations).
+- **Settled (composition):** a repo = owned data + cascading references; references
+  become drive keys + sparse replication (vs vendored subtree copies), pin-or-follow
+  per reference. Open: version resolution across the reference graph, transitive
+  trust, the mount/compose mechanism.
 - **Open:** retention/compaction policy + snapshot-rotate; multi-writer-per-topic
   choice; the attachable streaming component's boundary + API; consumer-group
   coordination (defer until needed); the fs-native→drive-native migration;
