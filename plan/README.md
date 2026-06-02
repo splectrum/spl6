@@ -17,37 +17,42 @@ folder is the source of truth from here on.
 - **`documentation/`** — working notes/decisions for the splectrum.world
   docs workstream (engineering-section structure, etc.).
 
-## Current status (2026-05-29)
+## Current status (2026-06-03)
 
 | Chapter | State |
 |---|---|
 | 1 — Initialisation | ✅ complete (migration baseline + spl6 identity; 73 tests green on TCP) |
-| 2 — Documentation | ▶ in progress — engineering structure + subject phase (AVRO/Git/Kafka/URI/XPath subjects + persons) + substrate layer done; **remaining scope now Infrastructure pages only** (Pear/Hyperswarm/Hypercore/P2P-security/Bare) — Platform deferred to Ch5–7 |
-| 3 — P2P transport POCs | ⬜ |
-| 4 — spl6 integrations | ⬜ swarm transport into spl (additive; TCP stays) |
-| 5 — Platform design review | ⬜ ground vision in integrated code + POC insights; distil the mature pillar; produce the design proposal |
-| 6 — Platform documentation | ⬜ render the settled design on splectrum.world; carries the spl5→spl6 retrospective |
-| 7 — Platform implementation | ⬜ realise the reviewed design in code |
-| 8 — Infrastructure | ⬜ private swarm, HiveRelay, git-on-Hyperdrive (production infra — last) |
+| 2 — Documentation | ✅ substantially complete — engineering structure, subject phase, substrate layer, Infrastructure hub done. Remaining (Pear pages, tools) parked |
+| 3 — P2P transport POCs | ✅ complete — every load-bearing primitive proven under Bare (identity, connect-by-key, protomux, replication, code mobility, native git, reactive dataflow). Catalogue: `p2p-building-blocks.md` |
+| 4 — Mycelium design | ▶ next — proper design of the native Mycelium fabric, grounded in spl's proven core and the POC primitives |
+| 5 — Mycelium POC | ⬜ prove the design — the fabric's core running, validated against the fs/TCP oracle |
 
-Order: migration → documentation (infra) → POCs → integration →
-platform (review → document → implement) → infrastructure. Platform
-sits *after* integration deliberately: it is the most transport-
-entangled layer, so the POCs and the integration teach it what it
-needs, and its mature pillar is distilled rather than rewritten.
+**spl6 closes after Chapter 5.** spl6's arc: migrate the proven fabric →
+explore the P2P substrate → design Mycelium → prove it. The build-out
+(Platform implementation, infrastructure, production) is the next era.
+
+### What moved out of spl6
+
+The original Ch4–8 (integration, platform design/doc/impl,
+infrastructure) assumed a longer arc — transport swap → platform
+cycle → production. The POCs and the design work showed that P2P is
+a substrate that reshapes the fabric, not a pipe swap. A proper
+Mycelium design + POC closes spl6's job (carry spl5 onto P2P
+infrastructure, prove it works). Building and shipping the native
+Mycelium is the next project's work.
+
+Parked items that carry forward:
+- Pear documentation pages (splectrum.world)
+- Platform pillar design review + documentation (the three-pillar distillation)
+- Infrastructure (private swarm, HiveRelay, git-on-Hyperdrive)
+- doc-freshness agent, ecosystem discovery
+- Backlog: harness-as-direct-RPC-client, context stream types,
+  test runner auto-start/stop, CLI help rendering
 
 ## Open questions
 
-To address *after the POCs* unless noted — see `open-questions/`:
-- `chapter-ordering.md`
+See `open-questions/`:
 - `test-strategy.md`
-- `bare-for-pear-contribution.md`
 - `client-server-resolution.md` — global `spl` as client-side resolver;
-  now scheduled into Chapter 5 (Platform design review)
-- (`code-analysis-before-p2p.md` — resolved: absorbed into Chapter 5)
-
-## Candidate tools
-
-See `tools/`:
-- `doc-dispatch.md` — agent-backed cross-repo authoring; Chapter 3 POC
-  use-case, Chapter 4 integration target.
+  carries forward to the next project
+- `bare-for-pear-contribution.md`
