@@ -51,15 +51,24 @@ Status: ⬜ pending · 🔄 in progress · ✅ done (drop when stale).
     adapter (`channel.js`). Discovery left unchanged (per-service topics) and the
     **worker-identity discovery model documented as open** (explore, not chosen). This
     is the substrate spl's many-handlers-per-peer inherits in Round 3.
+  - **phase-5-managed-code (5.3)** — **worker identity + connect-by-key** (B2+R3+M1).
+    Each worker has a keyed identity (`H(CLUSTER_SEED‖name)` → `DHT.keyPair`; the seed
+    never leaves the manager); its swarm runs under that keypair so it's reachable by
+    key. The manager seeds a signed **registry** `name → {key, roles}` (placement +
+    directory). The client resolves worker-b's key from the registry and connects
+    **by key** (`swarm.joinPeer`) — both workers run echo, but only worker-b serves
+    (worker-a: 0 calls), proving targeting a *specific* node vs "any provider". Probe:
+    `connect-by-key` (derive determinism + joinPeer with no shared topic). Both
+    addressing modes (service-addressed, identity-addressed) now exist as blocks.
 
   Probes committed (scrubbed run logs): holepunch-under-bare, udx-on-bridge,
   connect-via-public-dht (phase-1); avsc-rpc-under-bare, observability-under-bare
-  (phase-2); **hyperdrive-replicate-under-bare** + **avsc-rpc-on-protomux (phase-5)** —
-  the first: storage stack loads + replicates-by-key + both exec pathways under Bare
-  (pinned: `libatomic.so.1` for rocksdb-native on distroless-cc; `findingPeers()`
-  before `update()`); the second: avsc-rpc (AVRO) rides a named protomux channel, and
-  replication + RPC coexist on one secret-stream (pinned: `corestore.replicate` needs
-  a real protocol stream, not a home-rolled duplex). Hygiene: `scrub.sh` (masks
+  (phase-2); **hyperdrive-replicate-under-bare** + **avsc-rpc-on-protomux** +
+  **connect-by-key (phase-5)** — storage replicates-by-key + both exec pathways
+  (pinned: `libatomic.so.1`; `findingPeers()` before `update()`); avsc-rpc rides a
+  named protomux channel + replication/RPC coexist on one secret-stream (pinned:
+  `corestore.replicate` needs a real protocol stream); deterministic identity-key
+  derivation + `joinPeer`-by-key with no shared topic. Hygiene: `scrub.sh` (masks
   IPs/keys in committed logs), `.env` parameterised config. Module fix: avsc/avsc-rpc
   forks now declare deps (pushed to bare-for-pear); image clones them via https.
 
@@ -68,10 +77,10 @@ Status: ⬜ pending · 🔄 in progress · ✅ done (drop when stale).
   build/run/manage, proven/open). Each remaining single-concern step exercises one
   open cell and fills in the map.
 
-  **Next (single-concern steps, judged order in the map):** (1) **worker identity +
-  connect-by-key** — give the worker a keyed identity + the base "target a specific
-  node" op all management rests on (B2+R3+M1); (2) **live re-assignment** (M2); (3)
-  **pub/sub over protomux** (R9); then membership/health, mutable shared structure
+  **Next (single-concern steps, judged order in the map):** ✅ worker identity +
+  connect-by-key (5.3, done) → (1) **live re-assignment** (M2 — manager edits the
+  manifest, workers watch the drive and re-pick-up without restart); (2) **pub/sub
+  over protomux** (R9); then membership/health, mutable shared structure
   (Hyperbee/Autobase), lifecycle. Then Round 2 (script test rig), Round 3 (spl on the
   cluster). Programme: `p2p-poc-roadmap.md`; building blocks: `p2p-building-blocks.md`.
 

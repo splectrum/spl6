@@ -124,8 +124,11 @@ also seeds a signed `assignments.json`; workers self-assign by reading the manif
 moves to **protomux** — replication + each role's RPC as named channels on one
 connection, which unlocks **multi-role-per-worker** (one worker, many roles, one
 connection per client; de-risked in `probes/avsc-rpc-on-protomux`). The substrate
-spl's many-handlers-per-peer inherits in Round 3. Next single-concern steps: the
-worker-identity discovery model (kept open); live re-assignment.
+spl's many-handlers-per-peer inherits in Round 3. **5.3:** worker **identity +
+connect-by-key** — derived keypairs, a signed registry `name → {key, roles}`, and a
+client targeting a *specific* worker by key (`probes/connect-by-key`); both
+addressing modes now exist as blocks. Next single-concern steps: live re-assignment;
+pub/sub over protomux; membership/health.
 
 ## Carries forward
 

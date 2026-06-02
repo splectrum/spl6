@@ -85,16 +85,20 @@ Design aim: Pear-native is the final model, checkout a first-class escape hatch.
 `assignments.json`; workers self-assign by reading the manifest off the drive, not
 from argv. 5.2: the connection moves to **protomux** — replication + each role's RPC
 as **named channels** on one connection (`store.replicate(conn)` + `Protomux.from(conn)`),
-which kills the `info.topics` hack and **unlocks multi-role-per-worker** (worker-a
-runs `["echo","reverse"]`; one client opens a channel per service over one
-connection). Discovery left unchanged; the **worker-identity discovery model is open**
-(explore, not chosen). Committed probes (scrubbed logs): `hyperdrive-replicate-under-bare`
-(pinned: `libatomic.so.1`; `findingPeers()` before `update()`) and
-`avsc-rpc-on-protomux` (AVRO over a named channel; replication + RPC coexist; pinned:
-`corestore.replicate` needs a real protocol stream). `scrub.sh` log-masking,
-`.env`-parameterised config. Module fix: avsc/avsc-rpc forks now declare deps (pushed
-to bare-for-pear). Next (single-concern steps): worker-identity discovery; live
-re-assignment. Programme: `plan/p2p-poc-roadmap.md`; working list: `plan/tasks.md`.
+which kills the `info.topics` hack and **unlocks multi-role-per-worker**. 5.3: each
+worker has a **keyed identity** (`H(CLUSTER_SEED‖name)` → `DHT.keyPair`; seed never
+leaves the manager), the manager seeds a signed **registry** `name → {key, roles}`,
+and a client targets a *specific* worker via **connect-by-key** (`swarm.joinPeer`) —
+both workers run echo, only the targeted one serves. Both addressing modes
+(service-addressed, identity-addressed) now exist as building blocks. **Framing:** the
+round's deliverable is a *catalogue of swarm primitives for structure* — living map
+`plan/p2p-building-blocks.md` (primitives × build/run/manage, proven/open); each step
+fills a cell. Committed probes (scrubbed): `hyperdrive-replicate-under-bare`,
+`avsc-rpc-on-protomux`, `connect-by-key`. `scrub.sh` log-masking, `.env`-parameterised
+config. Module fix: avsc/avsc-rpc forks now declare deps (pushed to bare-for-pear).
+Next (single-concern steps): live re-assignment; pub/sub over protomux; then
+membership/health, mutable shared structure. Programme: `plan/p2p-poc-roadmap.md`;
+building blocks: `plan/p2p-building-blocks.md`; working list: `plan/tasks.md`.
 
 **Direction (pivot, recorded) — native P2P Mycelium that unifies the substrates.**
 Gear toward designing & implementing Mycelium **natively P2P on the log family**

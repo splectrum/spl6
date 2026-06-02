@@ -36,8 +36,8 @@ single-concern step). "Where" points at the phase/probe that proved it.
 | | Block | Status | Where / note |
 |---|---|---|---|
 | B1 | Keyed cluster identity (drive key from a seed) | ✅ | 5.0 — deterministic `corestore` primaryKey [P1,P13] |
-| B2 | **Worker identity keys** (each worker a keyed, addressable entity) | ⬜ | next step; pairs with R3/M1 [P1] |
-| B3 | Code + manifest in a signed drive | ✅ | 5.0/5.1 [P10,P12,P13] |
+| B2 | **Worker identity keys** (each worker a keyed, addressable entity) | ✅ | 5.3 — derived `H(seed‖name)` → `DHT.keyPair`; published in a signed registry [P1] |
+| B3 | Code + manifest/registry in a signed drive | ✅ | 5.0/5.1; registry 5.3 [P10,P12,P13] |
 | B4 | Mutable shared structure — config/registry as **Hyperbee**; multi-writer via **Autobase** | ⬜ | the streaming-fabric direction [P9,P11] |
 
 ## RUN structure — make it live
@@ -46,7 +46,7 @@ single-concern step). "Where" points at the phase/probe that proved it.
 |---|---|---|---|
 | R1 | Topic rendezvous / role (service) discovery | ✅ | 1,3,5 — anycast "find a provider" [P2] |
 | R2 | Mesh (everyone server+client) | ✅ | 4 — pub/sub fan-out topology [P2] |
-| R3 | **Connect-by-key** (reach a *specific* worker) | ⬜ | the base addressing op; next step [P3] |
+| R3 | **Connect-by-key** (reach a *specific* worker) | ✅ | 5.3 — `swarm.joinPeer(key)`, no shared topic; probe `connect-by-key` [P3] |
 | R4 | Direct connect vs holepunch | ◐ | direct proven 1 (flat bridge); NAT traversal is Ch 8 [P4] |
 | R5 | Protomux multi-channel — RPC + replication on one conn | ✅ | 5.2 + probe; unlocks multi-role-per-worker [P5,P6,P12] |
 | R6 | RPC primitive (1:1) | ✅ | 2,3,5 [P6] |
@@ -58,7 +58,7 @@ single-concern step). "Where" points at the phase/probe that proved it.
 
 | | Block | Status | Where / note |
 |---|---|---|---|
-| M1 | **Target a specific worker** (connect-by-key) | ⬜ | base op under all management; next step [P3] |
+| M1 | **Target a specific worker** (connect-by-key) | ✅ | 5.3 — client resolves a worker's key from the registry, connects by key; both workers run echo, only the targeted one serves [P3] |
 | M2 | Live re-assignment — change the manifest, workers re-pick-up (watch the drive) | ⬜ | leans on "watch the log" [P10/P12] |
 | M3 | Lifecycle — add / drain / restart; graceful stop | ◐ | SIGTERM stop proven; drain/restart open |
 | M4 | Health / observability — heartbeats, status query by identity | ◐ | thin emitter phase-3; query-by-identity open [P6+P3] |
@@ -69,22 +69,21 @@ single-concern step). "Where" points at the phase/probe that proved it.
 
 Judged ordering — load-bearing first; relaxed, not fixed.
 
-1. **Worker identity + connect-by-key** (B2 + R3 + M1). The most load-bearing open
-   cell: gives the worker a keyed identity and the base *target-a-specific-node* op
-   that all management rests on. The manifest already maps name → roles; bind
-   name → key there so service-calls resolve to a worker key (service-addressing
-   becomes connect-by-key + a manifest lookup).
-2. **Live re-assignment** (M2). Manager edits the manifest; workers watch the drive
+- ✅ **Worker identity + connect-by-key** (B2 + R3 + M1) — *done, 5.3.* Keyed
+  identity + the base target-a-specific-node op; the registry binds name → key → roles,
+  so service-addressing can resolve through it to a connect-by-key.
+
+1. **Live re-assignment** (M2). Manager edits the manifest; workers watch the drive
    and re-pick-up without restart — the "managed" cluster coming alive; first real
    use of *watch the log*.
-3. **Pub/sub over protomux** (R9). Fold the phase-4 primitive onto the 5.2 substrate
+2. **Pub/sub over protomux** (R9). Fold the phase-4 primitive onto the 5.2 substrate
    so events, RPC, and replication share one connection — completes the channel
    picture.
-4. **Membership / presence + health query** (M6 + M4). Know who's live and ask a
+3. **Membership / presence + health query** (M6 + M4). Know who's live and ask a
    *specific* node its status (uses connect-by-key) — needed before drain/restart.
-5. **Mutable shared structure** (B4). Hyperbee as a config/registry; Autobase for
+4. **Mutable shared structure** (B4). Hyperbee as a config/registry; Autobase for
    multi-writer — the bridge to the streaming-fabric direction (and to Round 3/spl).
-6. **Lifecycle: drain / restart** (M3). Graceful role hand-off, building on M1/M6.
+5. **Lifecycle: drain / restart** (M3). Graceful role hand-off, building on M1/M6.
 
 Deferred beyond this round: holepunch/NAT traversal (R4 → Ch 8), drive-as-module-root
 execution (deep Pear-loader path), and the discovery-of-unknowns case (mostly moot
