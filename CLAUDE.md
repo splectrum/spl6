@@ -26,16 +26,28 @@ weight. Working notes and structure decisions: `plan/documentation/`.
 
 ## Mission
 
-spl6 carries spl5's proven mycelium fabric onto P2P
+spl6 carries spl5's proven Mycelium fabric onto P2P
 infrastructure. spl5 proved the fabric end-to-end on
 local TCP RPC — stream record, namespace-as-filesystem
 dispatch, pack-at-boundary, handler contracts, input
 schemas, help system. Those concepts are transport-
-independent. spl6 takes them toward Hyperswarm/HyperDHT
-and pear-runtime: same protocol, data model, and handler
-contract, a different pipe underneath.
+independent and **carry forward**.
 
-Not a rewrite — a transport swap under proven patterns.
+**Direction (settled via the Chapter-3 POCs): a native P2P
+Mycelium on the log family — not a transport swap.** P2P is a
+substrate that reshapes the server model, storage, and
+addressing, so the move is to *re-seat* spl's proven concepts
+onto it (dispatch-as-protomux-channels, storage-as-log,
+distribution-as-signed-drives, `spl-server` → keyed `spl-peer`),
+not to swap a pipe under the fs/TCP fabric. Mycelium becomes a
+**reactive streaming dataflow over signed logs** that unifies the
+language substrates: Kafka = the log (Hypercore), AVRO = record
+encoding, Git = the version layer, URI/XPath = addressing,
+filesystem = a derived checkout. Design pair:
+`plan/mycelium-streaming-layer.md` (execution model) +
+`plan/streaming-fabric.md` (storage). **Discipline:** the fs/TCP
+spl6 build stays the working **oracle**; the native Mycelium
+grows alongside and is validated against it.
 
 The living plan and chapter sequence is in `plan/`
 (start at `plan/README.md`). The original seed plan is
@@ -58,19 +70,31 @@ layer** reworked to lean pages. Remaining: Platform/Mycelium,
 the P2P/Pear pages, Bare refresh, the spl5→spl6
 retrospective. Working notes: `plan/documentation/`.
 
-Chapter 3 (P2P transport POCs) — **active**. A
+Chapter 3 (P2P POCs) — **exploratory phase complete**. A
 containerised dev cluster in `poc/p2p-docker-dev` (subtree →
-`pear-full-square`), one self-contained folder per phase:
-phases 0–4 built (node + monitoring, peers connect, avsc-rpc
-over the swarm, roles & routing, pub/sub mesh). A design
-thread in `plan/` now sets the **direction**: a native P2P
-Mycelium on the log substrate that **unifies the language
-substrates** (Kafka=log, AVRO=encoding, Git=version layer,
-URI/XPath=addressing, filesystem=checkout) — see
-`streaming-fabric.md` + `observability-design.md`. Then
-Chapter 4 (integrate the swarm transport). The
-TCP path stays the local-dev transport; Hyperswarm is added,
-not substituted, until proven.
+`pear-full-square`), one folder per phase: phases 0–6 (node +
+monitoring, peers connect, avsc-rpc over the swarm, roles &
+routing, pub/sub mesh, managed code distribution, reactive
+dataflow). **Every load-bearing primitive the native Mycelium
+leans on is now proven under Bare** — keyed identity +
+connect-by-key, protomux multi-channel, signed-drive
+replication, code mobility, native git (isomorphic-git, no
+fork), and reactive dataflow (live-tail → react → emit). The
+catalogue is the living map `plan/p2p-building-blocks.md`
+(primitives × build/run/manage); five committed probes hold the
+evidence. Storage floor is RocksDB (`hypercore-storage`, bundled
+in Pear).
+
+Chapter 4 reframed — **native Mycelium design + build** (was
+"transport swap"). The design pair is on paper
+(`plan/mycelium-streaming-layer.md` + `streaming-fabric.md`);
+first realised in **Round 3** (spl's fabric composed from the
+proven primitives), validated against the fs/TCP oracle. The
+TCP path stays the local-dev transport; the native build grows
+alongside, not as a substitution. Remaining POC cells
+(retention/availability, membership/health, fs-over-Hyperdrive
+shim, Autobase/shared-reality) are build-it-when-needed or
+deferred — not exploratory de-risking.
 
 ## How We Work
 
