@@ -83,13 +83,18 @@ pathways — `memory` (no OS disk, the **Pear-native** target) and `checkout` (`
 Design aim: Pear-native is the final model, checkout a first-class escape hatch.
 5.1: placement is **data-driven** — the manager seeds multiple roles + a signed
 `assignments.json`; workers self-assign by reading the manifest off the drive, not
-from argv. 3 workers / 2 roles, incl. a shared role; both clients get live
-responses). Committed probes (scrubbed logs) incl. `hyperdrive-replicate-under-bare`
-(pinned: `libatomic.so.1` for rocksdb-native on distroless-cc; `findingPeers()`
-before `update()`). `scrub.sh` log-masking, `.env`-parameterised config. Module fix:
-avsc/avsc-rpc forks now declare deps (pushed to bare-for-pear). Next: phase-5.2
-(fuller managed capstone — live re-assignment / multi-role-per-worker). Programme:
-`plan/p2p-poc-roadmap.md`; working list: `plan/tasks.md`.
+from argv. 5.2: the connection moves to **protomux** — replication + each role's RPC
+as **named channels** on one connection (`store.replicate(conn)` + `Protomux.from(conn)`),
+which kills the `info.topics` hack and **unlocks multi-role-per-worker** (worker-a
+runs `["echo","reverse"]`; one client opens a channel per service over one
+connection). Discovery left unchanged; the **worker-identity discovery model is open**
+(explore, not chosen). Committed probes (scrubbed logs): `hyperdrive-replicate-under-bare`
+(pinned: `libatomic.so.1`; `findingPeers()` before `update()`) and
+`avsc-rpc-on-protomux` (AVRO over a named channel; replication + RPC coexist; pinned:
+`corestore.replicate` needs a real protocol stream). `scrub.sh` log-masking,
+`.env`-parameterised config. Module fix: avsc/avsc-rpc forks now declare deps (pushed
+to bare-for-pear). Next (single-concern steps): worker-identity discovery; live
+re-assignment. Programme: `plan/p2p-poc-roadmap.md`; working list: `plan/tasks.md`.
 
 **Direction (pivot, recorded) — native P2P Mycelium that unifies the substrates.**
 Gear toward designing & implementing Mycelium **natively P2P on the log family**

@@ -113,8 +113,12 @@ deterministic from a seed). Two execution pathways — `memory` (no OS disk, the
 Pear-native target) and `checkout` (`bare-fs` + `require`, the bridge into the
 non-P2P world for testing/hybrid). **5.1:** placement is data-driven — the manager
 also seeds a signed `assignments.json`; workers self-assign by reading the manifest
-(3 workers / 2 roles, incl. a shared role), not from argv. Next: 5.2 the fuller
-capstone (live re-assignment; multi-role-per-worker via per-role connection routing).
+(3 workers / 2 roles, incl. a shared role), not from argv. **5.2:** the connection
+moves to **protomux** — replication + each role's RPC as named channels on one
+connection, which unlocks **multi-role-per-worker** (one worker, many roles, one
+connection per client; de-risked in `probes/avsc-rpc-on-protomux`). The substrate
+spl's many-handlers-per-peer inherits in Round 3. Next single-concern steps: the
+worker-identity discovery model (kept open); live re-assignment.
 
 ## Carries forward
 

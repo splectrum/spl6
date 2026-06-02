@@ -40,21 +40,33 @@ Status: ⬜ pending · 🔄 in progress · ✅ done (drop when stale).
     manifest off the replicated drive and **self-assigns** by name (no-role fallback
     if absent). Demonstrated with 3 workers / 2 clients: `echo` placed on worker-a +
     worker-c (many-workers-one-role), `reverse` on worker-b; both clients get live
-    responses (`reverse@worker-b: 5# gnip`). One role per worker (multi-role-per-worker
-    needs per-role connection routing — deferred); live re-assignment deferred too.
+    responses (`reverse@worker-b: 5# gnip`).
+  - **phase-5-managed-code (5.2)** — the connection moves to **protomux** (single
+    concern). Every connection carries, on one muxer: replication (`store.replicate`)
+    + each role's RPC on its **own named channel** (`Protomux.from(conn)`, accepted by
+    protocol name). Kills 5.1's `info.topics` routing hack and **unlocks
+    multi-role-per-worker**: worker-a runs `["echo","reverse"]`, and one client asking
+    for both reaches it on **one connection**, opening one channel per service (26 RPC
+    triples, both answered). avsc-rpc (AVRO) rides a channel via a small channel↔duplex
+    adapter (`channel.js`). Discovery left unchanged (per-service topics) and the
+    **worker-identity discovery model documented as open** (explore, not chosen). This
+    is the substrate spl's many-handlers-per-peer inherits in Round 3.
 
   Probes committed (scrubbed run logs): holepunch-under-bare, udx-on-bridge,
   connect-via-public-dht (phase-1); avsc-rpc-under-bare, observability-under-bare
-  (phase-2); **hyperdrive-replicate-under-bare (phase-5)** — storage stack loads +
-  replicates-by-key + both exec pathways under Bare; pinned gotchas: `libatomic.so.1`
-  (rocksdb-native needs it; absent from distroless-cc — install + copy) and
-  `findingPeers()` before `update()` on a replica. Hygiene: `scrub.sh` (masks
+  (phase-2); **hyperdrive-replicate-under-bare** + **avsc-rpc-on-protomux (phase-5)** —
+  the first: storage stack loads + replicates-by-key + both exec pathways under Bare
+  (pinned: `libatomic.so.1` for rocksdb-native on distroless-cc; `findingPeers()`
+  before `update()`); the second: avsc-rpc (AVRO) rides a named protomux channel, and
+  replication + RPC coexist on one secret-stream (pinned: `corestore.replicate` needs
+  a real protocol stream, not a home-rolled duplex). Hygiene: `scrub.sh` (masks
   IPs/keys in committed logs), `.env` parameterised config. Module fix: avsc/avsc-rpc
   forks now declare deps (pushed to bare-for-pear); image clones them via https.
 
-  **Next: phase-5.2 — fuller managed capstone** (candidates: live re-assignment —
-  manager edits the manifest, workers re-pick-up without restart; multi-role-per-worker
-  via per-role connection routing). Then Round 2 (script test rig), Round 3 (spl on
+  **Next (each a single-concern step):** the **worker-identity discovery model** (a
+  worker announces itself; clients select services by channel name — the option the
+  user leans toward, kept open); **live re-assignment** (manager edits the manifest →
+  workers re-pick-up without restart). Then Round 2 (script test rig), Round 3 (spl on
   the cluster). Programme: `p2p-poc-roadmap.md`.
 
 - 🔄 **Native P2P Mycelium — the direction** (design thread in `plan/`; pivot
