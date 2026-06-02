@@ -58,10 +58,16 @@ layer** reworked to lean pages. Remaining: Platform/Mycelium,
 the P2P/Pear pages, Bare refresh, the spl5→spl6
 retrospective. Working notes: `plan/documentation/`.
 
-Then Chapter 3 (P2P transport POCs) and Chapter 4
-(integrate the swarm transport). The TCP path stays as the
-local-dev transport; Hyperswarm is added, not substituted,
-until proven.
+Chapter 3 (P2P transport POCs) — **active**. A
+containerised dev cluster in `poc/p2p-docker-dev` (subtree →
+`pear-full-square`), one self-contained folder per phase:
+phases 0–4 built (node + monitoring, peers connect, avsc-rpc
+over the swarm, roles & routing, pub/sub mesh). A design
+thread in `plan/` (`streaming-fabric.md`,
+`observability-design.md`) is feeding the Platform/Mycelium
+work. Then Chapter 4 (integrate the swarm transport). The
+TCP path stays the local-dev transport; Hyperswarm is added,
+not substituted, until proven.
 
 ## How We Work
 

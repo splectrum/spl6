@@ -65,24 +65,38 @@ entries to `flagRegistry` in spl/avsc-rpc/cli/index.js.
 
 ## In progress
 
-**Chapter 2 — Documentation (the splectrum.world Infrastructure hub).**
-Substantially built: the landing page + three-heading structure
-(Holepunch / In House / Ecosystem). **Holepunch** = Bare (refreshed) + the
-full P2P building-block stack (17 synthesised pages across storage,
-networking, crypto & security, availability & relays). **Ecosystem** = a
-curated community survey. Authored as prompt docs here, rendered in
-the-world-of-splectrum.
+**Chapter 3 — P2P transport POCs (active).** Round 1 dev cluster in
+`poc/p2p-docker-dev` (subtree → `pear-full-square/p2p-docker-dev`), one
+self-contained folder per phase + a top README (product + journey). Built &
+runnable: phase-0 (node + one structured event stream), phase-1 (peers connect on
+a private DHT; `firewalled:false` direct connect — holepunch is for NAT traversal
+and fails on a no-NAT bridge), phase-2 (avsc-rpc over the encrypted stream via
+`createChannel(conn)`, the same call spl uses on TCP), phase-3 (roles & routing,
+name→topic→peer, multi-peer + no-peer fallback, thin observability emitter),
+phase-4 (pub/sub mesh — the 1:many contrast to RPC). Committed probes (scrubbed
+logs), `scrub.sh` log-masking, `.env`-parameterised config. Module fix:
+avsc/avsc-rpc forks now declare deps (pushed to bare-for-pear). Next: phase-5
+(managed code distribution). Programme: `plan/p2p-poc-roadmap.md`; working list:
+`plan/tasks.md`.
 
-Model settled this round (see `.claude/rules/conventions.md`): synthesised,
-implementation-grade pages kept current by an **agentic freshness check**
-(not thin stubs, not verbatim dumps); **"write for the AI reader, humans
-come free"**; doc prompts carry **content + structure only** (site mechanics
-are the executor's). Freshness-agent spec: `plan/tools/doc-freshness-agent.md`.
+**Design thread → Platform/Mycelium** (in `plan/`, calibrated settled-vs-open).
+`observability-design.md` — graduated two-tier instrumentation; thin pino-schema
+emitter built in phase-3. `streaming-fabric.md` — streaming at heart;
+log-as-substrate; Kafka↔Hypercore (single-writer + Autobase, no consensus);
+storage model = native log family with the OS filesystem as a git-mirrored
+checkout, realised as a Hyperdrive cache over the git object store (tested vs
+plain `.git`); cascading-references composition; the *minimal-base /
+open-implementations* principle. Roadmap invariant: the application owns all
+runtime code.
 
-Deferred / POC-gated within the hub: **Pear** (post-POC), `pear-full-square`,
-and the **barification cookbook** (all need first-hand POC material). P2P
-test/deployment patterns to seed the POCs:
-`plan/p2p-test-deployment-findings.md`.
+**Chapter 2 — Documentation (splectrum.world Infrastructure hub).** Substantially
+built: landing + three headings (Holepunch / In House / Ecosystem); Holepunch =
+Bare + the synthesised P2P building-block stack; Ecosystem = a curated survey.
+Authored as prompt docs here, rendered in the-world-of-splectrum. Doc model in
+`.claude/rules/conventions.md` (synthesise + agentic freshness check; write for
+the AI reader; prompts carry content + structure only). Deferred / POC-gated: the
+Pear page, pear-full-square write-ups, the barification cookbook, the
+doc-freshness-agent stand-up.
 
 Code baseline unchanged — Chapter 1 migration end-state, 73 tests green on TCP.
 
@@ -95,9 +109,11 @@ Chapter sequence (living plan: `plan/README.md`):
    progress*). What's left is POC-gated (Pear page; pear-full-square; the
    barification cookbook) or optional now (stand up the doc-freshness
    agent). Platform/Mycelium remains the separate Ch5–7 sequence.
-2. **Chapter 3 — P2P transport POCs.** Prove AVRO-over-Hyperswarm,
-   namespace-to-topic mapping, multi-peer, pear-runtime updates — in
-   isolation, outside spl, before any integration.
+2. **Chapter 3 — P2P transport POCs (active).** Round 1 dev cluster phases
+   0–4 built (see *In progress*). Remaining: phase-5 (managed code
+   distribution), then Round 2 (script test rig) and Round 3 (spl on the
+   cluster ≈ the Ch4 integration, POC'd first). Detail:
+   `plan/p2p-poc-roadmap.md`.
 3. **Chapter 4 — spl6 integrations.** Bring the swarm transport into
    spl (single peer on DHT, topic registration, distributed dispatch,
    multi-peer, pear-runtime). TCP stays for local dev; `spl-server` →
@@ -108,8 +124,13 @@ Chapter sequence (living plan: `plan/README.md`):
    the settled design on splectrum.world; carries the spl5→spl6
    retrospective) → implementation (realise it). Deferred to here
    deliberately: Platform is the most transport-entangled layer.
+   Now substantially pre-informed by the design thread
+   (`plan/streaming-fabric.md`, `plan/observability-design.md`): the review
+   inherits the log-substrate storage model, the observability model, and the
+   minimal-base / open-implementations principle.
 5. **Chapter 8 — Infrastructure.** Private swarm, HiveRelay,
-   git-on-Hyperdrive — production infra, last.
+   git-on-Hyperdrive (git-over-P2P / repos-as-Hyperdrives — elaborated in
+   `plan/streaming-fabric.md`) — production infra, last.
 
 ### Carried-over backlog (spl5-era, still valid)
 

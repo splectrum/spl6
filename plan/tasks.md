@@ -8,53 +8,56 @@ Status: ⬜ pending · 🔄 in progress · ✅ done (drop when stale).
 
 ## In progress
 
-- 🔄 **Round 1 — managed dev cluster** (`poc/p2p-docker-dev`).
-  Phases 0→4. Done: 0.1 hello node, 0.1.1 slim image, 0.2 watchable cluster,
-  **1.0 peers connect** (private DHT, `firewalled:false` direct — holepunch is
-  for NAT traversal and fails on a no-NAT bridge), **2.0 avsc-rpc over the swarm**
-  (Echo RPC round-trips over the encrypted stream via `createChannel(conn)` — same
-  call spl uses over TCP; correlation id threaded through, appears in both peers'
-  streams). Module fix: avsc/avsc-rpc forks now declare deps (pushed to
-  bare-for-pear); image clones them via https (npm git-deps fragile).
-  **3.0 roles & routing** (RPC 1:1 — named services, route name→topic→peer;
-  multi-peer + no-peer fallback; thin pino-schema emitter folded in), **4.0
-  pub/sub mesh** (1:many — every member server+client, one emits, others receive,
-  no hub; the contrast to the RPC primitive). **Repo restructured: one
-  self-contained folder per phase** + a top README (product + journey).
-  Next: **managed code distribution & responsibilities** (a manager seeds
-  role-code on a Hyperdrive; nodes pull + run it, trust = signed key; "what runs
-  where" data-driven) — the next POC phase folder. Programme: `p2p-poc-roadmap.md`
-  (pub/sub was added as a contrast primitive beyond the original phase list).
+- 🔄 **Round 1 — managed dev cluster** (`poc/p2p-docker-dev`, subtree →
+  `pear-full-square/p2p-docker-dev`). **One self-contained folder per phase** + a
+  top README (product + journey). Built & runnable:
+  - **phase-0-node-and-monitoring** — Bare node + one structured event stream
+    (`capture.sh` merges app stdout + daemon lifecycle).
+  - **phase-1-peers-connect** — private DHT; `firewalled:false` direct connect
+    (holepunch is for NAT traversal and fails on a no-NAT bridge).
+  - **phase-2-rpc** — avsc-rpc over the encrypted stream via `createChannel(conn)`
+    (the same call spl uses on TCP); correlation id across peers.
+  - **phase-3-roles-routing** — RPC 1:1, name→topic→peer, multi-peer + no-peer
+    fallback; thin pino-schema observability emitter (`log.js`) folded in.
+  - **phase-4-pubsub-mesh** — pub/sub 1:many, every member server+client, no hub
+    (the contrast to the RPC primitive).
 
-- 🔄 **Operational visibility** (`observability-design.md`). Design settled at the
-  model level (researched + verified under Bare: pino-bare, hypertrace; gaps:
-  no off-the-shelf cross-peer correlation). Principle: instrument at the fabric
-  seams, emit a leveled, correlation-carrying event stream. **Graduated, two-tier:**
-  production = minimal detect/localize; full diagnosis escalated in isolated
-  reproductions (probes are the Tier-2 vehicle). **Thin pino-schema emitter built
-  in Phase 3** (`phase-3-roles-routing/log.js`: levels, `.child()` correlation
-  context, `--debug` dial). Still open: env-driven `LOG_LEVEL` (needs Bare env
-  access), the seam-level instrumentation, and graduating the emitter to a
-  shared component.
+  Probes committed (scrubbed run logs): holepunch-under-bare, udx-on-bridge,
+  connect-via-public-dht (phase-1); avsc-rpc-under-bare, observability-under-bare
+  (phase-2). Hygiene: `scrub.sh` (masks IPs/keys in committed logs), `.env`
+  parameterised config. Module fix: avsc/avsc-rpc forks now declare deps (pushed
+  to bare-for-pear); image clones them via https.
 
-- 🔄 **Streaming fabric — log as substrate** (`streaming-fabric.md`). Settled
-  direction: SPLectrum is streaming at heart; the log is the substrate;
-  Kafka↔Hypercore (single-writer logs + Autobase, ordering decentralised, no
-  consensus). The streaming/topic setup should become a reusable component other
-  repos + substrate types attach to (topic/append/replay/subscribe over
-  stream-records + AVRO). Open: retention/compaction (Hypercore has sparse +
-  clear/truncate but no built-in retention), multi-writer-per-topic choice,
-  component API. Acts at Round 3 (spl on cluster) → Platform (Mycelium) → Ch 8.
+  **Next: phase-5 — managed code distribution & responsibilities** (a manager
+  seeds role-code on a Hyperdrive; nodes pull + run it, trust = signed key; "what
+  runs where" data-driven). Then Round 2 (script test rig), Round 3 (spl on the
+  cluster). Programme: `p2p-poc-roadmap.md`.
+
+- 🔄 **Design thread → Platform/Mycelium** (in `plan/`, calibrated settled-vs-open;
+  feeds the Ch5–7 Platform review):
+  - `observability-design.md` — graduated two-tier instrumentation (production =
+    detect/localize; full diagnosis in isolated probes). Thin pino-schema emitter
+    **built in phase-3** (`log.js`). Open: env-driven `LOG_LEVEL` (Bare lacks env),
+    seam-level instrumentation, graduate the emitter to a component.
+  - `streaming-fabric.md` — SPLectrum streaming at heart; log-as-substrate;
+    Kafka↔Hypercore (single-writer + Autobase, no consensus); **storage model** =
+    native log family (Hypercore→Hyperbee/Hyperdrive), OS filesystem as a
+    git-mirrored checkout, realised as a **Hyperdrive cache over the git object
+    store** (tested against plain `.git`); **cascading-references** composition
+    (refs = drive keys + sparse replication vs vendored subtrees); **principle:
+    minimal base, open implementations** (trust/merge/Autobase/branching per use
+    case). Acts at Round 3 → Platform → Ch 8 (git-over-P2P).
+  - Roadmap invariant (`p2p-poc-roadmap.md`): **the application owns all runtime
+    code** (deps absorbed at build time; trust = signed key).
 
 ## Queued
 
-- ⬜ **Stand up the doc-freshness agent routine.** Spec is validated
-  (`tools/doc-freshness-agent.md`) — the cross-repo four-stage loop with a
-  sign-off gate. Run it for real against the Infrastructure hub.
-- ⬜ **Ecosystem discovery pass.** Hunt for new bare/p2p/pear projects to add to
-  the Ecosystem survey on splectrum.world. (It grows over time.)
+- ⬜ **Stand up the doc-freshness agent routine.** Spec validated
+  (`tools/doc-freshness-agent.md`) — cross-repo four-stage loop + sign-off gate.
+  Run it against the Infrastructure hub.
+- ⬜ **Ecosystem discovery pass.** Hunt for new bare/p2p/pear projects for the
+  Ecosystem survey on splectrum.world.
 
 ## Deferred (Platform-era)
 
-- ⬜ **Build the doc-freshness loop as a SPLectrum tool.** Once we're doing spl
-  tooling, realise the freshness loop as a proper tool rather than a prompt.
+- ⬜ **Build the doc-freshness loop as a SPLectrum tool** (vs the current prompt).
