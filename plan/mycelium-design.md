@@ -55,6 +55,13 @@ substrate where the seed doesn't yet cover a concept.
   are the schemas (contracts describing protocols and operators) and references. Code
   (operator implementations) is content, stored in git
 
+## In one line
+
+**Mycelium is a hybrid between git and kafka** — both native, both P2P-realised on
+the same Hypercore/Hyperdrive substrate. Git for mutable structure; Kafka for
+immutable data change event streams. AVRO encodes the data in both (Round 2).
+XPath/URI addresses both. Topic references connect them.
+
 ## The pivot
 
 spl5 Mycelium was conceptually at the intersection of AVRO, Git, and Kafka, but
@@ -63,9 +70,22 @@ spl6 POCs proved all three as native P2P substrate: isomorphic-git runs under Ba
 as a JS library (no fork, no shell-out), Hypercore IS the append-only log. The pivot:
 these are now the *actual* ground level, not abstractions layered on the filesystem.
 
-This collapses several layers of indirection. The filesystem becomes a derived
-checkout, not the source of truth. Git is a library call, not an external binary.
-The log is a replicated data structure, not a conceptual model.
+This collapses several layers of indirection. Git is a library call, not an external
+binary. The log is a replicated data structure, not a conceptual model. The
+**filesystem is entirely external** to native Mycelium — it exists only as a bridge
+to external tools that need real files (editors, build systems). Mycelium's native
+data structures are git objects and Hypercore logs, with no filesystem intermediary.
+
+### Native vs external
+
+**Native Mycelium** — git objects on Hyperdrive + Hypercore topics. No filesystem.
+XPath navigates git tree/blob objects and log entries directly through isomorphic-git's
+programmatic API (`readBlob`, `readTree`, `listFiles`). The git object model IS the
+data structure. This is where Mycelium lives.
+
+**External** — a standard git repository on the OS filesystem, for when external tools
+need real files. A derived, materialised representation of the same data. The escape
+hatch to the non-Mycelium world, and the correctness oracle during development.
 
 ## The elementary unit
 
@@ -98,6 +118,20 @@ filesystem.
 - Input data — topics this owner has declared as dependencies via topic references
 - Replicated sparsely — only the data the owner references
 
+### Git objects as the native data structure
+
+The git object model maps directly to the Mycelium fabric primitive:
+
+- **Tree object** = context (a bounded area containing identifier points)
+- **Blob object** = value at an identifier point (opaque bytes)
+- **Tree entry** = identifier point (name → hash, the key → value mapping)
+- **Index entry** = tracked but uncommitted identifier point (work in progress)
+- **Commit** = a quality-gated snapshot of the full tree
+
+Git objects ARE the data entities. Not "data stored in git" — the objects themselves
+are the fabric. XPath navigates tree objects directly; reading a value means reading
+a blob by hash; the index is the working state for uncommitted changes.
+
 ### The mutable/immutable boundary
 
 The boundary is **mutability**, and it maps directly to the storage mechanism:
@@ -109,13 +143,22 @@ The boundary is **mutability**, and it maps directly to the storage mechanism:
   that change and need versioning, merging, auditing. Git's object model provides
   history, branching, 3-way merge natively. isomorphic-git makes these library calls.
 
-- **Dirty / working state → uncommitted.** Local, unrecorded, no guarantees. The
-  git working tree before add/commit. The honest default when no commitment has
-  been made.
+Mutable data has two layers rather than three — no "dirty" state:
+
+| State | Store | Character |
+|---|---|---|
+| **Tracked** | Git index (blobs + index entries) | Work in progress, addressable, content-hashed, not yet quality-gated |
+| **Committed** | Git commit tree | Official, versioned, broadcast via ref-log |
+| **Immutable** | Hypercore topic | Append-only data change event stream |
+
+Changes go straight into git tracking: creating a blob in the object store and
+updating the index. The data is a git object — content-addressed, addressable — from
+the moment of creation. Commit is the quality gate, not the point of entry. No
+filesystem working tree, no overlay, no separate dirty state mechanism.
 
 Mutability is **storage-inherent**. A Hypercore entry is immutable by construction.
-A git-tracked file is mutable by construction. Uncommitted state is dirty by
-construction. No separate mutability protocol needed — the storage tells you.
+A git-tracked blob is mutable by construction (the index or a commit tree can point
+to a different blob). No separate mutability protocol needed — the storage tells you.
 
 ## Data state propagation — Mycelium's interaction mode
 
@@ -198,11 +241,17 @@ record stream — built into the fabric, not bolted on.
 
 ## Git on Hypercore/Hyperdrive — the repo on P2P substrate
 
-The git repository is the data owner's container. On the P2P substrate,
-isomorphic-git operates over Hyperdrive rather than the OS filesystem. The fs adapter
-(the ~10-method surface: readFile, writeFile, stat, readdir, etc.) is the integration
-seam — `bare-fs` for local development, a Hyperdrive-fs adapter for the P2P case.
-Same git operations, different backing store.
+The git repository is the data owner's container. Natively, isomorphic-git operates
+directly on the Hyperdrive — reading and writing git objects (blobs, trees, commits)
+as drive entries. The primary interface is isomorphic-git's object API (`readBlob`,
+`readTree`, `writeBlob`, `commit`, etc.), not a filesystem API. No working tree is
+materialised in the native path.
+
+The fs adapter (the ~10-method surface: readFile, writeFile, stat, readdir, etc.)
+exists for the **external** case — materialising a standard git repo on the OS
+filesystem when external tools need real files. `bare-fs` for local development,
+a Hyperdrive-fs adapter for P2P. The external representation is the correctness
+oracle during development, not the native data path.
 
 **What git provides natively:**
 - Identity — the repo has a key (the Hyperdrive key, the owner's public key)
@@ -250,10 +299,27 @@ native compression (Snappy, LZ4, ZSTD, configurable per LSM level). If storage
 size becomes a concern, compression is a storage-layer knob — git stays simple,
 the drive stores objects, RocksDB compresses if needed. Each layer does its own job.
 
-**The standard `.git` representation as oracle.** During development, the standard
-on-disk `.git` + working tree is the correctness reference. The Hyperdrive-backed
-implementation must be behaviour-equivalent. One interface (the fs adapter), two
-implementations, assertable.
+**Git integration approach: wrapper first, gradual (settled).** Start with a wrapper
+around isomorphic-git — a Mycelium git component that adds:
+- Loose-objects-only enforcement (no packfile creation)
+- XPath-style navigation over tree/blob objects
+- Index as Mycelium's tracked/committed working-state model
+- Ref-log on Hypercore for data state propagation (new code — isomorphic-git
+  knows nothing about Hypercore)
+- A Hyperdrive-fs adapter for `.git/` internals (thin, no working tree)
+
+isomorphic-git provides the complex operations (merge, diff, tree comparison) and
+the proven git object manipulation. The wrapper provides the Mycelium-specific API.
+The gradual approach lets us learn the git object code as we go — invaluable for
+understanding how to proceed. If the wrapper grows thick or fights isomorphic-git's
+filesystem assumptions, the underlying implementation becomes ours. Either way, the
+Mycelium-facing API is our own. A `bare-for-pear` component candidate.
+
+**The standard `.git` representation as oracle.** During development, the external
+representation (standard on-disk `.git` + materialised working tree) is the
+correctness reference. The native Hyperdrive-backed implementation must be
+behaviour-equivalent to the external one. Assertable: same git operations, same
+object hashes, same tree structure.
 
 ## Immutable log structures — Hypercore topics
 
@@ -331,13 +397,20 @@ structure and log-backed immutable topics. The existing XPath concept (addressin
 traversal, POV, data scope vs functional resolution) carries forward. What extends
 it is the log dimension.
 
-**Two data stores, one navigation model:**
-- **Git-backed (mutable):** navigable tree, versioned, the identifier structure with
-  property bags. XPath traversal walks this as it does today — contexts, ancestor
-  accumulation.
-- **Log-backed (immutable):** offset-addressable, tailable, appendable. The
+**Two native data structures, one navigation model:**
+- **Git objects (mutable):** XPath navigates git tree objects directly — walking tree
+  entries, reading blob values by hash. The latest commit tree is the default
+  navigation root; the index (tracked, uncommitted) is the working-state root.
+  Versioned navigation is free — any commit's tree is reachable. No filesystem
+  traversal; the tree objects ARE the identifier structure.
+- **Hypercore logs (immutable):** offset-addressable, tailable, appendable. The
   sequence/time axis extends XPath: offset, replay, `last()`, typed-filter. A
   live-tail query IS a subscription.
+
+**Navigation is always on a consistent snapshot.** On the git side, a commit tree is
+immutable — no race with a concurrent write. Navigating the index is the current
+working state. On the log side, an offset references an immutable record. No
+filesystem intermediary means no stale-cache or concurrent-modification concerns.
 
 ### Three visibility modes
 
@@ -448,11 +521,11 @@ The concepts carry forward; the realisation changes.
 | Fabric primitive (identifier point + property bags) | Git-tracked tree; key/value with opaque bytes |
 | Immutable records | Kafka records on Hypercore topics |
 | Mutable protocol (queue → surface) | Dissolves into git + topic composition |
-| Mutability regimes | Storage-inherent: Hypercore = immutable, git = mutable, uncommitted = dirty |
+| Mutability regimes | Storage-inherent: Hypercore = immutable, git = mutable (tracked/committed) |
 | References | Topic references — keys + sparse replication |
 | Layering | Hypercore (physical) → Hyperbee/Hyperdrive (views) → projections |
 | Data state propagation | Two cadences: git commit + data change events |
-| Safe mode | Opaque byte access — the physical floor (Round 1 IS this level) |
+| Safe mode | Opaque byte access — the physical floor (Round 1 IS this level). No filesystem |
 | Message (tree in motion) | Kafka record (key + value + headers) on topics |
 | Headers as enrichment | Headers as extensible metadata surface — provenance, lineage, visibility |
 | Protocol (Mycelium's own) | XPath, git, URI operations — to revisit |
@@ -462,18 +535,22 @@ The concepts carry forward; the realisation changes.
 
 ## Open questions (Round 1)
 
+- **XPath on git objects** — the exact API surface for navigating tree/blob/index
+  objects via isomorphic-git's programmatic interface. What does XPath traversal
+  call under the hood? How does index navigation differ from commit-tree navigation?
 - **XPath sequence/time axis** — the exact syntax for offset, range, replay, live-tail
   queries over log-backed paths. Extends the existing XPath grammar
 - **Topic reference granularity** — reference a whole topic or filter by path/type
   within it? Affects replication volume and propagation precision
-- **The Hyperdrive-fs adapter** — the shape-matching shim for isomorphic-git.
-  Thin (~10 methods), needs building and testing against the `.git` oracle
 - **Topic naming / discovery** — how a topic's Hypercore key relates to a
   human/machine-readable name. References use keys; navigation uses paths. The
   mapping between them
 - **Kafka record serialisation at Round 1** — the record envelope (key + headers)
   needs a serialisation format even before Round 2 adds AVRO for values. Minimal
   binary framing, or AVRO for the envelope from the start?
-- **Git-backed vs log-backed navigation seam** — how XPath traversal crosses from
-  the git tree into subscribed topic data and back. The addressing is uniform;
-  the physical boundary needs design
+- **Git tree ↔ topic navigation seam** — how XPath traversal crosses from git
+  objects into subscribed topic data and back. The addressing is uniform; the
+  boundary between the two native data structures needs design
+- **External materialisation** — when and how the native git-object state is
+  materialised to a filesystem repo for external tools. On-demand, cached, or
+  triggered by specific operations? The Hyperdrive-fs adapter serves this case
