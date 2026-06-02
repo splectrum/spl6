@@ -218,10 +218,13 @@ worth graduating to `bare-for-pear`. None exists off-the-shelf for v11+; we buil
 
 The substrate primitives (`p2p-building-blocks.md`) compose into the three tiers:
 
-- **data-change-event stream** = log replication + a local watch. This **subsumes
-  live-reassignment (M2)** — "watch the manifest log, re-pick-up" is just one instance
-  of "react to a change in a subscribed log". So the reactive core *is* the general
-  case M2 was a special case of.
+- **data-change-event stream** = log replication + a local watch. **Proven** (probe
+  `reactive-core`, phase-6): `createReadStream({live})` is pushed each append, the
+  reaction emits to its own log, and it cascades — cursor = `contiguousLength`. This
+  **subsumes live-reassignment (M2)** — "watch the manifest log, re-pick-up" is just one
+  instance of "react to a change in a subscribed log". So the reactive core *is* the
+  general case M2 was a special case of, and it was the one load-bearing assumption the
+  execution model still rested on — now demonstrated.
 - **RPC** = connect-by-key (R3) + an avsc-rpc protomux channel (R5/R6).
 - **commit-broadcast** = a git ref-log as a subscribable stream + sparse object fetch.
 

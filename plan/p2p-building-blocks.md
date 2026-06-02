@@ -60,13 +60,14 @@ The `libatomic.so.1` step is **distroless-only**, not a Pear concern.
 | R7 | Pub/sub primitive (1:many) | ✅ | 4 [P7] |
 | R8 | Code mobility — pull + execute (memory / checkout) | ✅ | 5.0–5.2; Pear-native vs bridge [P10,P12] |
 | R9 | Pub/sub **over protomux** (coexist with RPC + replication on one conn) | ⬜ | only RPC+repl coexistence proven so far [P5,P7] |
+| R10 | **Reactive dataflow** — live-tail a log → react → emit (cascade) | ✅ | probe `reactive-core`; `createReadStream({live})` is pushed, cursor = `contiguousLength` [P8,P12] |
 
 ## MANAGE structure — operate and change it
 
 | | Block | Status | Where / note |
 |---|---|---|---|
 | M1 | **Target a specific worker** (connect-by-key) | ✅ | 5.3 — client resolves a worker's key from the registry, connects by key; both workers run echo, only the targeted one serves [P3] |
-| M2 | Live re-assignment — change the manifest, workers re-pick-up (watch the drive) | ⬜ | leans on "watch the log" [P10/P12] |
+| M2 | Live re-assignment — change the manifest, workers re-pick-up (watch the drive) | ◐ | mechanism proven (R10 / probe `reactive-core` — it's "react to a subscribed log"); in-cluster build remains [P10/P12] |
 | M3 | Lifecycle — add / drain / restart; graceful stop | ◐ | SIGTERM stop proven; drain/restart open |
 | M4 | Health / observability — heartbeats, status query by identity | ◐ | thin emitter phase-3; query-by-identity open [P6+P3] |
 | M5 | Dynamic scaling / re-placement of roles across nodes | ⬜ | static manifest now; dynamic builds on M2 |
@@ -82,10 +83,14 @@ Judged ordering — load-bearing first; relaxed, not fixed.
   so service-addressing can resolve through it to a connect-by-key.
 - ✅ **Native git in a peer** (B5) — *done.* isomorphic-git under Bare, no fork
   (probe `isomorphic-git-under-bare`).
+- ✅ **Reactive core** (R10) — *done.* Live-tail → react → emit, cascade, cursors
+  (probe `reactive-core`). The execution-model heart; **subsumes** live-reassignment.
 
-1. **Live re-assignment** (M2). Manager edits the manifest; workers watch the drive
-   and re-pick-up without restart — the "managed" cluster coming alive; first real
-   use of *watch the log*.
+*The exploratory POC phase is complete — every load-bearing primitive is proven.* What
+remains is build-it-when-needed engineering or deferred work, not de-risking:
+
+1. **Live re-assignment in-cluster** (M2). Mechanism proven (R10); the remaining bit is
+   the application — wire manifest-watch into the worker. Naturally lands with Round 3.
 2. **Pub/sub over protomux** (R9). Fold the phase-4 primitive onto the 5.2 substrate
    so events, RPC, and replication share one connection — completes the channel
    picture.

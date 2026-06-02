@@ -90,15 +90,21 @@ worker has a **keyed identity** (`H(CLUSTER_SEED‖name)` → `DHT.keyPair`; see
 leaves the manager), the manager seeds a signed **registry** `name → {key, roles}`,
 and a client targets a *specific* worker via **connect-by-key** (`swarm.joinPeer`) —
 both workers run echo, only the targeted one serves. Both addressing modes
-(service-addressed, identity-addressed) now exist as building blocks. **Framing:** the
+(service-addressed, identity-addressed) now exist as building blocks. **phase-6** —
+the execution-model **heart**, proven (probe `reactive-core`): live-tail a log →
+react → emit, a cascade (source→transform→sink); `createReadStream({live})` is pushed
+not polled, cursor = `contiguousLength`. Subsumes live-reassignment. **Framing:** the
 round's deliverable is a *catalogue of swarm primitives for structure* — living map
-`plan/p2p-building-blocks.md` (primitives × build/run/manage, proven/open); each step
-fills a cell. Committed probes (scrubbed): `hyperdrive-replicate-under-bare`,
-`avsc-rpc-on-protomux`, `connect-by-key`. `scrub.sh` log-masking, `.env`-parameterised
-config. Module fix: avsc/avsc-rpc forks now declare deps (pushed to bare-for-pear).
-Next (single-concern steps): live re-assignment; pub/sub over protomux; then
-membership/health, mutable shared structure. Programme: `plan/p2p-poc-roadmap.md`;
-building blocks: `plan/p2p-building-blocks.md`; working list: `plan/tasks.md`.
+`plan/p2p-building-blocks.md` (primitives × build/run/manage, proven/open). Committed
+probes (scrubbed): `hyperdrive-replicate-under-bare`, `avsc-rpc-on-protomux`,
+`connect-by-key`, `isomorphic-git-under-bare`, `reactive-core`. **The exploratory POC
+phase is complete** — every load-bearing primitive (identity + connect-by-key,
+protomux multi-channel, replication, code mobility, native git, reactive dataflow) is
+proven under Bare. Next move is the **Mycelium build (Round 3)** — spl's fabric
+composed from these, validated against the fs/TCP oracle — not more POCs; remaining
+open cells are build-it-when-needed or deferred. `scrub.sh` log-masking,
+`.env`-parameterised config. Programme: `plan/p2p-poc-roadmap.md`; building blocks:
+`plan/p2p-building-blocks.md`; working list: `plan/tasks.md`.
 
 **Direction (pivot, recorded) — native P2P Mycelium that unifies the substrates.**
 Gear toward designing & implementing Mycelium **natively P2P on the log family**

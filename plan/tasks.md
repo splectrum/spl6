@@ -60,6 +60,13 @@ Status: ⬜ pending · 🔄 in progress · ✅ done (drop when stale).
     (worker-a: 0 calls), proving targeting a *specific* node vs "any provider". Probe:
     `connect-by-key` (derive determinism + joinPeer with no shared topic). Both
     addressing modes (service-addressed, identity-addressed) now exist as blocks.
+  - **phase-6-reactive-dataflow** — the execution-model **heart**, proven (probe
+    `reactive-core`): a two-hop cascade source → transform → sink, each **live-tailing**
+    its upstream (`createReadStream({live})` is pushed, not polled), reacting, and
+    **emitting to its own log** (waking the next); cursor = `contiguousLength`
+    (resumable/replayable). Subsumes live-reassignment (M2). The over-the-swarm version
+    is composition with phase-5's proven replication → Round 3 (with real spl records).
+    **This was the last must-prove exploratory POC.**
 
   Probes committed (scrubbed run logs): holepunch-under-bare, udx-on-bridge,
   connect-via-public-dht (phase-1); avsc-rpc-under-bare, observability-under-bare
@@ -71,7 +78,9 @@ Status: ⬜ pending · 🔄 in progress · ✅ done (drop when stale).
   deterministic identity-key derivation + `joinPeer`-by-key with no shared topic; and
   **isomorphic-git runs under Bare unmodified** (pure-JS git on `bare-fs`; init/commit/
   log + working-tree reconstruction; **no fork** — npm dep; pinned: use the ESM build,
-  Bare resolves the "node" condition which hard-requires `crypto`). Hygiene: `scrub.sh` (masks
+  Bare resolves the "node" condition which hard-requires `crypto`); and **reactive-core
+  (phase-6)** — live-tail cascade (source→transform→sink), `createReadStream({live})`
+  pushed not polled, cursor = `contiguousLength`. Hygiene: `scrub.sh` (masks
   IPs/keys in committed logs), `.env` parameterised config. Module fix: avsc/avsc-rpc
   forks now declare deps (pushed to bare-for-pear); image clones them via https.
 
@@ -80,12 +89,14 @@ Status: ⬜ pending · 🔄 in progress · ✅ done (drop when stale).
   build/run/manage, proven/open). Each remaining single-concern step exercises one
   open cell and fills in the map.
 
-  **Next (single-concern steps, judged order in the map):** ✅ worker identity +
-  connect-by-key (5.3, done) → (1) **live re-assignment** (M2 — manager edits the
-  manifest, workers watch the drive and re-pick-up without restart); (2) **pub/sub
-  over protomux** (R9); then membership/health, mutable shared structure
-  (Hyperbee/Autobase), lifecycle. Then Round 2 (script test rig), Round 3 (spl on the
-  cluster). Programme: `p2p-poc-roadmap.md`; building blocks: `p2p-building-blocks.md`.
+  **Exploratory POC phase complete** — every load-bearing primitive the native-Mycelium
+  design leans on is proven under Bare (identity + connect-by-key, protomux multi-channel,
+  replication, code mobility, native git, reactive dataflow). The honest next move is the
+  **Mycelium build (Round 3)** — spl's fabric composed from these primitives, validated
+  against the fs/TCP oracle — not more POCs. Remaining open cells (live-reassignment
+  in-cluster, pub/sub-over-protomux, retention/availability, membership/health,
+  fs-over-Hyperdrive shim, Autobase/shared-reality) are build-it-when-needed or deferred.
+  Programme: `p2p-poc-roadmap.md`; building blocks: `p2p-building-blocks.md`.
 
 - 🔄 **Native P2P Mycelium — the direction** (design thread in `plan/`; pivot
   decided). Gear toward designing & implementing Mycelium **natively P2P on the
