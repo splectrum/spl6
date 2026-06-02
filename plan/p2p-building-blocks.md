@@ -31,6 +31,11 @@ single-concern step). "Where" points at the phase/probe that proved it.
 | P12 | **Replication** | sync a core/drive by key; sparse/selective |
 | P13 | **Signed content** | Hypercore signatures → *trust = the key* |
 
+*Storage floor:* the whole data family (P8–P12) sits on **RocksDB** (`hypercore-storage`;
+corestore 7 — storage + atomicity), **bundled in Pear**. It's the one **native** dep
+under the otherwise-pure-JS upper layers (absorbed at build time; proven under Bare).
+The `libatomic.so.1` step is **distroless-only**, not a Pear concern.
+
 ## BUILD structure — compose the shape, as data
 
 | | Block | Status | Where / note |
@@ -39,6 +44,8 @@ single-concern step). "Where" points at the phase/probe that proved it.
 | B2 | **Worker identity keys** (each worker a keyed, addressable entity) | ✅ | 5.3 — derived `H(seed‖name)` → `DHT.keyPair`; published in a signed registry [P1] |
 | B3 | Code + manifest/registry in a signed drive | ✅ | 5.0/5.1; registry 5.3 [P10,P12,P13] |
 | B4 | Mutable shared structure — config/registry as **Hyperbee**; multi-writer via **Autobase** | ⬜ | the streaming-fabric direction [P9,P11] |
+| B5 | **Native git** in a peer (version layer) — isomorphic-git under Bare | ✅ | probe `isomorphic-git-under-bare`; pure-JS, no fork; use the ESM build [P10,P13] |
+| B6 | **fs-over-Hyperdrive shim** (a `bare-fs` sibling, drive-backed) → git-on-Hyperdrive | ⬜ | thin shape-matching shim (v10 had a node-fs API); build it [P10] |
 
 ## RUN structure — make it live
 
@@ -64,6 +71,7 @@ single-concern step). "Where" points at the phase/probe that proved it.
 | M4 | Health / observability — heartbeats, status query by identity | ◐ | thin emitter phase-3; query-by-identity open [P6+P3] |
 | M5 | Dynamic scaling / re-placement of roles across nodes | ⬜ | static manifest now; dynamic builds on M2 |
 | M6 | Membership / registry — who's in the cluster, liveness | ⬜ | Hyperbee registry, or pub/sub presence [P9,P7] |
+| M7 | Retention / availability — ≥k copies + repair loop | ⬜ | placement in the registry + connect-by-key; spectrum full-retainer ↔ partial-coverage-with-repair ↔ erasure (`mycelium-streaming-layer.md`) [P12,P3] |
 
 ## What's left to explore (the open cells, as single-concern steps)
 
@@ -72,6 +80,8 @@ Judged ordering — load-bearing first; relaxed, not fixed.
 - ✅ **Worker identity + connect-by-key** (B2 + R3 + M1) — *done, 5.3.* Keyed
   identity + the base target-a-specific-node op; the registry binds name → key → roles,
   so service-addressing can resolve through it to a connect-by-key.
+- ✅ **Native git in a peer** (B5) — *done.* isomorphic-git under Bare, no fork
+  (probe `isomorphic-git-under-bare`).
 
 1. **Live re-assignment** (M2). Manager edits the manifest; workers watch the drive
    and re-pick-up without restart — the "managed" cluster coming alive; first real
@@ -81,9 +91,13 @@ Judged ordering — load-bearing first; relaxed, not fixed.
    picture.
 3. **Membership / presence + health query** (M6 + M4). Know who's live and ask a
    *specific* node its status (uses connect-by-key) — needed before drain/restart.
-4. **Mutable shared structure** (B4). Hyperbee as a config/registry; Autobase for
+4. **Retention / availability** (M7). ≥k copies + a repair loop; placement in the
+   registry, fetch via connect-by-key. Start with the few-full-retainers backstop.
+5. **fs-over-Hyperdrive shim** (B6). The `bare-fs` sibling → git-on-Hyperdrive; a thin
+   shape-matching shim, reusable beyond git.
+6. **Mutable shared structure** (B4). Hyperbee as a config/registry; Autobase for
    multi-writer — the bridge to the streaming-fabric direction (and to Round 3/spl).
-5. **Lifecycle: drain / restart** (M3). Graceful role hand-off, building on M1/M6.
+7. **Lifecycle: drain / restart** (M3). Graceful role hand-off, building on M1/M6.
 
 Deferred beyond this round: holepunch/NAT traversal (R4 → Ch 8), drive-as-module-root
 execution (deep Pear-loader path), and the discovery-of-unknowns case (mostly moot

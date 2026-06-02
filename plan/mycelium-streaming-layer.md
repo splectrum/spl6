@@ -60,7 +60,15 @@ an initial concern.
   table→stream; `checkout`/materialize is stream→table.
 - **Cursors + rewind, per repo (subject reality).** Each repo tracks its own position
   per input log, persisted locally; append-only makes **rewind/replay** free (move the
-  cursor back). Crash-resume and replay fall out.
+  cursor back). Crash-resume and replay fall out. The **offset is one primitive doing
+  five jobs** — cursor, completeness, gap-detection, lag, and replay-point — and
+  Hypercore exposes it directly: `core.length` (head) and `core.contiguousLength` (the
+  fully-downloaded prefix), with `Hyperbee`/`Hyperdrive` surfacing it as `.version`.
+  "Did I get everything?" = `contiguousLength` vs `length`; "lag" = head − cursor; and
+  the head is part of the **signed Merkle state**, so "caught up" is *verifiable*, not a
+  guess. Scope: this is **per stream** (no single cross-log offset — multi-input repos
+  reconcile per-log cursors), and **head-relative** (complete *as of* a known head; the
+  log grows); under **sparse** replication "everything" means the subscribed slice.
 - **Subject reality local; shared reality later.** The dataflow graph is each repo's
   own subject reality (its references in, its emissions out) — continuous with spl's
   two-reality model. **Shared reality** (a consensus/merged view across repos) is a
@@ -93,10 +101,37 @@ git, not LFS).
 **Availability is a cluster policy, not a per-reference worry.** Immutability
 guarantees *reference consistency* (a pinned key can never change under you); the
 managed P2P cluster guarantees *availability* by a **retention / replication-factor
-policy** — ensure ≥1 (ideally ≥N) durable, reachable peers retain each record, then
-anyone can request it. So availability moves from an ad-hoc per-reference concern to a
-single cluster-level knob. (It still can't dodge: a record every holder has pruned, or
-a lone offline peer, is unavailable — the policy must keep enough live copies.)
+policy** — ensure ≥1 (ideally ≥k, e.g. 3) durable, reachable peers retain each record,
+then anyone can request it. So availability moves from an ad-hoc per-reference concern
+to a single cluster-level knob. (It can't dodge physics: a record every holder pruned,
+or a lone offline peer, is unavailable — the policy must keep enough live copies.)
+
+**Availability schemes (a Mycelium infrastructure roadmap item).** Sparse replication
+gives the *mechanism* (any peer holds any block-range, serves it, all Merkle-verified);
+the *guarantee* is a placement policy + a repair loop on top. A spectrum, choose per
+data:
+- **few full retainers** — a couple of durable peers keep everything, the rest sparse.
+  Trivial coordination, storage-heavy, rock-solid backstop. *Usually the right first move (MVP).*
+- **partial-coverage with redundancy k + repair** — no full copy anywhere; the union
+  covers the log at factor k; a **repair loop** re-replicates a dead holder's ranges
+  (the real cost). Storage-efficient, coordination-heavy.
+- **erasure coding** — most storage-efficient, but Hypercore is whole-block-replication-
+  native, so it's extra machinery we'd build; only if storage efficiency truly matters.
+
+This is a **management-overlay / retention-controller** concern built on primitives we
+have: the signed **registry** holds placement (ranges → peers, factor k), **connect-by-
+key** + bitfields fetch from a holder, and the controller watches liveness and re-assigns
+on churn (the repair loop). "Guarantee" = engineer to tolerate *f* failures at factor
+*k*, not absolute.
+
+**Storage floor — RocksDB (a settled fact worth noting).** The whole log family now
+sits on RocksDB (`hypercore-storage` is the RocksDB driver; corestore 7 is RocksDB-
+backed, for storage *and atomicity*). It is **bundled in Pear** (`new Corestore(Pear.config.storage)`).
+So: large logs + atomic writes are backed by a production LSM engine (reinforces the
+retention discussion), and it's the **one native dependency** under the otherwise-
+pure-JS upper layers (absorbed at build time, like sodium/udx; proven under Bare in the
+probes). The `libatomic.so.1` step we hit is **distroless-only** (the minimal base
+strips it) — not a Pear concern.
 
 **Interim dual → unified endgame.** While git keeps a standard `.git` object store this
 is an explicit *dual* setup (git + log, an LFS-like pointer boundary) — worth it at
@@ -167,6 +202,17 @@ transport (a protomux channel → git-over-P2P). **Residual git unknowns are now
 performance (the Hyperdrive-fs checkout hydrate/harvest) and working-tree fidelity
 (symlinks/modes) — not git feasibility.** This materially downgrades what was flagged
 as the biggest unknown.
+
+**On the Hyperdrive-fs adapter.** Current Hyperdrive (v11+, what we use) is *not*
+node-fs-shaped — its API is `get`/`put`/`entry`/`del`/`readdir`/streams. But Hyperdrive
+**v10 explicitly implemented the Node `fs` API** (`readFile`/`writeFile`/`stat`/
+`readdir`/…), so a node-fs-shaped drive is proven, not novel — the rewrite just changed
+the surface. The ops map almost 1:1 (`get`→`readFile`, `put`→`writeFile`, `del`→`unlink`,
+`entry`→`stat`/`lstat` incl. size/executable/`linkname`, `readdir`, `symlink`), so the
+adapter is a **thin shape-matching shim** (rename + synthesize `stat` + handle
+Hyperdrive's *implicit* directories), not a reimplementation. It's a **reusable
+component — the `bare-fs` sibling** (bare-fs over the OS; this over a replicated drive),
+worth graduating to `bare-for-pear`. None exists off-the-shelf for v11+; we build it.
 
 ## How the tiers map to the building blocks
 
