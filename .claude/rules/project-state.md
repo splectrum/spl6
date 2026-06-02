@@ -4,6 +4,31 @@ Snapshot of where the work stands. Update at commit points
 when the state shifts. Reflects current reality, not history
 — the git log is the history.
 
+## Last session (2026-06-02) — exploratory POC phase closed; Mycelium direction settled
+
+Built the rest of the managed-code phase and the reactive core, and turned a
+run of design discussions into a settled native-Mycelium design.
+
+- **POCs built:** phase-5 managed code distribution (5.0 signed-drive code
+  distribution → 5.1 data-driven assignment manifest → 5.2 protomux connection
+  substrate + multi-role-per-worker → 5.3 worker identity + connect-by-key), and
+  **phase-6 reactive dataflow** (the execution-model heart). Four+ committed probes:
+  `hyperdrive-replicate-under-bare`, `avsc-rpc-on-protomux`, `connect-by-key`,
+  `isomorphic-git-under-bare`, `reactive-core`.
+- **Key findings:** protomux is the connection substrate (many handlers = named
+  channels); connect-by-key is the base management op; **isomorphic-git runs under
+  Bare unmodified — no fork** (the biggest unknown, downgraded); the reactive core
+  (live-tail → react → emit, cascade) works; RocksDB is the storage floor (bundled
+  in Pear; libatomic is distroless-only).
+- **Decided/designed:** Chapter 4 reframed from "transport swap" → **native Mycelium
+  design + build** (re-seat spl's core onto the substrate, Round 3, fs/TCP as oracle).
+  New living docs: `plan/p2p-building-blocks.md` (the primitive catalogue) and
+  `plan/mycelium-streaming-layer.md` (execution model — three cadence tiers, git/log
+  mutability boundary, commit-broadcast, merge rule, availability schemes). CLAUDE.md
+  mission updated.
+- **Net:** every load-bearing primitive is proven under Bare; the exploratory POC
+  phase is **complete**. Next is the Mycelium build (Round 3), not more POCs.
+
 ## Working end-to-end
 
 Carried forward from spl5 (Chapter 1 migration), running on TCP:
