@@ -112,8 +112,18 @@ git-mirrored checkout (a Hyperdrive cache over the git object store, tested vs p
 `.git`); cascading-references composition; the *minimal-base / open-implementations*
 principle. `observability-design.md` — graduated two-tier instrumentation; thin
 emitter built in phase-3. Roadmap invariant: the application owns all runtime code.
-**Discipline:** spl6 stays fs/TCP through the migration; the native P2P Mycelium is
-the Platform-era build.
+**`mycelium-streaming-layer.md`** (new) is the **execution-model companion** to
+`streaming-fabric.md` (storage): reactive dataflow over logs; three cadence tiers
+(git commit/push = slow durable heartbeat, data-change-event streams = the working
+cadence, RPC = the fast minority); local code DNA; commit-broadcast as the worked
+example; the git/log boundary by mutability (immutable records → log, mutable
+structure/code/references → git); merge decision rule (judgment → git 3-way + AI +
+tests-on-commit; determinism → Autobase). **This design pair replaces the old
+"Chapter 4 = transport swap" framing** — P2P is a substrate that reshapes the server
+model, storage and addressing, not a pipe; spl's *conceptual* core carries forward,
+the substrate-facing layer is redesigned. **Discipline:** the fs/TCP spl6 build stays
+the working **oracle**; the native P2P Mycelium grows alongside and is validated
+against it (Round 3 → Platform).
 
 **Chapter 2 — Documentation (splectrum.world Infrastructure hub).** Substantially
 built: landing + three headings (Holepunch / In House / Ecosystem); Holepunch =
@@ -135,15 +145,19 @@ Chapter sequence (living plan: `plan/README.md`):
    progress*). What's left is POC-gated (Pear page; pear-full-square; the
    barification cookbook) or optional now (stand up the doc-freshness
    agent). Platform/Mycelium remains the separate Ch5–7 sequence.
-2. **Chapter 3 — P2P transport POCs (active).** Round 1 dev cluster phases
-   0–4 built (see *In progress*). Remaining: phase-5 (managed code
-   distribution), then Round 2 (script test rig) and Round 3 (spl on the
-   cluster ≈ the Ch4 integration, POC'd first). Detail:
-   `plan/p2p-poc-roadmap.md`.
-3. **Chapter 4 — spl6 integrations.** Bring the swarm transport into
-   spl (single peer on DHT, topic registration, distributed dispatch,
-   multi-peer, pear-runtime). TCP stays for local dev; `spl-server` →
-   `spl-peer` and `lib/rpc-server` drop happen here.
+2. **Chapter 3 — P2P transport POCs (active).** Round 1 dev cluster: phases
+   0–4 + phase-5 (managed code) built through 5.3 — see *In progress*. The
+   POCs exercised the full building-block set (`plan/p2p-building-blocks.md`)
+   and surfaced the core decisions now captured in the Mycelium design pair.
+   Remaining: a few management cells, then Round 2 (script test rig) and
+   Round 3 (spl on the cluster). Detail: `plan/p2p-poc-roadmap.md`.
+3. **Chapter 4 — native Mycelium design + build (was: transport swap).** Not a
+   pipe-swap (already proven in phase-2) but **re-seating spl's proven core onto
+   the P2P substrate**: dispatch-as-channels, storage-as-log, distribution-as-drives,
+   `spl-server` → keyed `spl-peer`. Designed in `plan/mycelium-streaming-layer.md`
+   + `plan/streaming-fabric.md`; first realised in **Round 3**, validated against
+   the fs/TCP oracle. Enabling threads: the commit-broadcast concept POC and the
+   isomorphic-git-under-Bare probe.
 4. **Chapters 5–7 — Platform.** Design review (ground vision in
    integrated code + POC insights; distil the mature pillar; resolve
    client-server resolution + code-grounding) → documentation (render

@@ -1,5 +1,10 @@
 # Streaming fabric — the log as substrate
 
+> **Companion:** this note is the **storage substrate**; `mycelium-streaming-layer.md`
+> is the **execution model** (reactive dataflow, the three cadence tiers, commit-broadcast,
+> the git/log boundary by mutability). Together they are the native-P2P-Mycelium design
+> that replaces the old "Chapter 4 = transport swap" framing.
+
 Internal design note. **SPLectrum is streaming at heart**: the append-only log is
 the substrate, stream-records flow on it, and everything else (indexes, views,
 state) is a derived view of it. Kafka-type properties — ordering, durability,

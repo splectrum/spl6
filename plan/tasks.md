@@ -88,9 +88,19 @@ Status: ⬜ pending · 🔄 in progress · ✅ done (drop when stale).
   decided). Gear toward designing & implementing Mycelium **natively P2P on the
   log family**, because it **naturally unifies the language substrates** (Kafka =
   log, AVRO = encoding, Git = version layer, URI/XPath = addressing, filesystem =
-  checkout). `streaming-fabric.md` is now the Mycelium direction, not just Platform
-  input. Discipline: spl6 stays fs/TCP through migration; native P2P Mycelium is
-  the Platform-era build. The notes (calibrated settled-vs-open):
+  checkout). The design pair **replaces the old "Chapter 4 = transport swap" framing**
+  (P2P is a substrate, not a pipe; spl's conceptual core carries forward, the
+  substrate-facing layer is redesigned). Discipline: the fs/TCP spl6 build stays the
+  working **oracle**; native P2P Mycelium grows alongside (Round 3 → Platform). The
+  notes (calibrated settled-vs-open):
+  - **`mycelium-streaming-layer.md`** (new) — the **execution model**: reactive
+    dataflow over logs; three cadence tiers (git commit/push = slow durable heartbeat,
+    data-change-event streams = working cadence, RPC = fast minority); local code DNA;
+    commit-broadcast as the worked example (branch = stream, commit = publish, checkout
+    = materialize); git/log boundary by mutability (immutable records → log, mutable
+    structure/code/references → git); merge rule (judgment → git 3-way + AI +
+    tests-on-commit; determinism → Autobase). Enabling threads: commit-broadcast
+    concept POC + isomorphic-git-under-Bare probe.
   - `observability-design.md` — graduated two-tier instrumentation (production =
     detect/localize; full diagnosis in isolated probes). Thin pino-schema emitter
     **built in phase-3** (`log.js`). Open: env-driven `LOG_LEVEL` (Bare lacks env),
