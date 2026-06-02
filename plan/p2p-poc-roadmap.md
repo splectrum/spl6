@@ -111,8 +111,10 @@ replicates by the trusted key and pulls + runs one role (`echo`), a client prove
 it live. Trust = a signed key is intrinsic (drive key = manager's public key,
 deterministic from a seed). Two execution pathways — `memory` (no OS disk, the
 Pear-native target) and `checkout` (`bare-fs` + `require`, the bridge into the
-non-P2P world for testing/hybrid). Next: 5.1 the data-driven assignment manifest,
-5.2 the fuller capstone.
+non-P2P world for testing/hybrid). **5.1:** placement is data-driven — the manager
+also seeds a signed `assignments.json`; workers self-assign by reading the manifest
+(3 workers / 2 roles, incl. a shared role), not from argv. Next: 5.2 the fuller
+capstone (live re-assignment; multi-role-per-worker via per-role connection routing).
 
 ## Carries forward
 

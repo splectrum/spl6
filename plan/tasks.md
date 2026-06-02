@@ -34,6 +34,14 @@ Status: ⬜ pending · 🔄 in progress · ✅ done (drop when stale).
     non-P2P world**: testing, hybrid). Design aim: Pear-native is the final model,
     checkout is a first-class escape hatch (a worker materializing pulled code to run
     is the *"filesystem as a derived checkout"* idea in miniature). Both proven.
+  - **phase-5-managed-code (5.1)** — placement is now **data-driven**. The manager
+    seeds multiple roles (`echo`, `reverse`) **+ a signed `assignments.json` manifest**;
+    workers are no longer told their role on the command line — each reads the
+    manifest off the replicated drive and **self-assigns** by name (no-role fallback
+    if absent). Demonstrated with 3 workers / 2 clients: `echo` placed on worker-a +
+    worker-c (many-workers-one-role), `reverse` on worker-b; both clients get live
+    responses (`reverse@worker-b: 5# gnip`). One role per worker (multi-role-per-worker
+    needs per-role connection routing — deferred); live re-assignment deferred too.
 
   Probes committed (scrubbed run logs): holepunch-under-bare, udx-on-bridge,
   connect-via-public-dht (phase-1); avsc-rpc-under-bare, observability-under-bare
@@ -44,9 +52,9 @@ Status: ⬜ pending · 🔄 in progress · ✅ done (drop when stale).
   IPs/keys in committed logs), `.env` parameterised config. Module fix: avsc/avsc-rpc
   forks now declare deps (pushed to bare-for-pear); image clones them via https.
 
-  **Next: phase-5.1 — data-driven assignment manifest** ("what runs where": multiple
-  roles + multiple workers self-assigning from a manifest the manager publishes),
-  then 5.2 (fuller managed capstone). Then Round 2 (script test rig), Round 3 (spl on
+  **Next: phase-5.2 — fuller managed capstone** (candidates: live re-assignment —
+  manager edits the manifest, workers re-pick-up without restart; multi-role-per-worker
+  via per-role connection routing). Then Round 2 (script test rig), Round 3 (spl on
   the cluster). Programme: `p2p-poc-roadmap.md`.
 
 - 🔄 **Native P2P Mycelium — the direction** (design thread in `plan/`; pivot

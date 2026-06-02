@@ -80,12 +80,15 @@ worker replicates it by the **trusted key**, pulls + runs the role; a client cal
 **trust = a signed key** intrinsic, deterministic from `CLUSTER_SEED`. Two execution
 pathways — `memory` (no OS disk, the **Pear-native** target) and `checkout` (`bare-fs`
 + `require`, the deliberate **bridge to non-P2P** for testing/hybrid); both proven.
-Design aim: Pear-native is the final model, checkout a first-class escape hatch).
-Committed probes (scrubbed logs) incl. `hyperdrive-replicate-under-bare` (pinned:
-`libatomic.so.1` for rocksdb-native on distroless-cc; `findingPeers()` before
-`update()`). `scrub.sh` log-masking, `.env`-parameterised config. Module fix:
-avsc/avsc-rpc forks now declare deps (pushed to bare-for-pear). Next: phase-5.1
-(data-driven assignment manifest — "what runs where"). Programme:
+Design aim: Pear-native is the final model, checkout a first-class escape hatch.
+5.1: placement is **data-driven** — the manager seeds multiple roles + a signed
+`assignments.json`; workers self-assign by reading the manifest off the drive, not
+from argv. 3 workers / 2 roles, incl. a shared role; both clients get live
+responses). Committed probes (scrubbed logs) incl. `hyperdrive-replicate-under-bare`
+(pinned: `libatomic.so.1` for rocksdb-native on distroless-cc; `findingPeers()`
+before `update()`). `scrub.sh` log-masking, `.env`-parameterised config. Module fix:
+avsc/avsc-rpc forks now declare deps (pushed to bare-for-pear). Next: phase-5.2
+(fuller managed capstone — live re-assignment / multi-role-per-worker). Programme:
 `plan/p2p-poc-roadmap.md`; working list: `plan/tasks.md`.
 
 **Direction (pivot, recorded) — native P2P Mycelium that unifies the substrates.**
