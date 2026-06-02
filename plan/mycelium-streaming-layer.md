@@ -151,12 +151,22 @@ live connection and react. No central remote, no broker — whoever subscribes h
    **is** the broadcast (no separate step). The `streaming-fabric.md` endgame
    ("Hyperdrive cache over the git object store").
 
-**Bare git is the enabler.** `lib/git` today shells out to the system `git` binary
-(`spawnSync`) — it can't run in a distroless/Pear peer. A **bare port** (isomorphic-git
-barified: bare-fs adapter; local `init`/`add`/`commit`/`log`/`checkout` first, transport
-— eventually P2P — later) makes git a native base-layer citizen. Feasibility is
-*probable but unproven* → a probe (load isomorphic-git under Bare, do a local commit
-against bare-fs) gates the native version.
+**Bare git is the enabler — and it's proven.** `lib/git` today shells out to the
+system `git` binary (`spawnSync`) — it can't run in a distroless/Pear peer.
+**isomorphic-git runs under Bare *unmodified*** (probe `isomorphic-git-under-bare`:
+init/add/commit×2/log + working-tree reconstruction from `.git`, on `bare-fs`, on
+distroless, 129MB). All-pure-JS deps (pako/sha.js/diff3); `Buffer` is a Bare global;
+the SHA path falls back to `sha.js` with no WebCrypto. So git is a native base-layer
+citizen via a plain **npm dependency — no bare-for-pear fork.** *Gotcha pinned:* use
+the **ESM build** (the CJS/"node" build hard-`require`s `crypto`, which Bare lacks; Bare
+resolves the "node" condition by default) — a thin wrapper *we own*, not an upstream
+patch. The integration surface is **adapters we own, zero upstream changes**: the `fs`
+plugin (`bare-fs` now; a **Hyperdrive-fs** adapter later → git-on-Hyperdrive via the
+*same* ~10-method fs surface, not a storage rewrite) and the ~50-line `GitHttp`
+transport (a protomux channel → git-over-P2P). **Residual git unknowns are now
+performance (the Hyperdrive-fs checkout hydrate/harvest) and working-tree fidelity
+(symlinks/modes) — not git feasibility.** This materially downgrades what was flagged
+as the biggest unknown.
 
 ## How the tiers map to the building blocks
 

@@ -64,11 +64,14 @@ Status: ⬜ pending · 🔄 in progress · ✅ done (drop when stale).
   Probes committed (scrubbed run logs): holepunch-under-bare, udx-on-bridge,
   connect-via-public-dht (phase-1); avsc-rpc-under-bare, observability-under-bare
   (phase-2); **hyperdrive-replicate-under-bare** + **avsc-rpc-on-protomux** +
-  **connect-by-key (phase-5)** — storage replicates-by-key + both exec pathways
-  (pinned: `libatomic.so.1`; `findingPeers()` before `update()`); avsc-rpc rides a
-  named protomux channel + replication/RPC coexist on one secret-stream (pinned:
-  `corestore.replicate` needs a real protocol stream); deterministic identity-key
-  derivation + `joinPeer`-by-key with no shared topic. Hygiene: `scrub.sh` (masks
+  **connect-by-key** + **isomorphic-git-under-bare (phase-5)** — storage
+  replicates-by-key + both exec pathways (pinned: `libatomic.so.1`; `findingPeers()`
+  before `update()`); avsc-rpc rides a named protomux channel + replication/RPC coexist
+  on one secret-stream (pinned: `corestore.replicate` needs a real protocol stream);
+  deterministic identity-key derivation + `joinPeer`-by-key with no shared topic; and
+  **isomorphic-git runs under Bare unmodified** (pure-JS git on `bare-fs`; init/commit/
+  log + working-tree reconstruction; **no fork** — npm dep; pinned: use the ESM build,
+  Bare resolves the "node" condition which hard-requires `crypto`). Hygiene: `scrub.sh` (masks
   IPs/keys in committed logs), `.env` parameterised config. Module fix: avsc/avsc-rpc
   forks now declare deps (pushed to bare-for-pear); image clones them via https.
 
