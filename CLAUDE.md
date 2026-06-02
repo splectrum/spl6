@@ -63,9 +63,12 @@ containerised dev cluster in `poc/p2p-docker-dev` (subtree →
 `pear-full-square`), one self-contained folder per phase:
 phases 0–4 built (node + monitoring, peers connect, avsc-rpc
 over the swarm, roles & routing, pub/sub mesh). A design
-thread in `plan/` (`streaming-fabric.md`,
-`observability-design.md`) is feeding the Platform/Mycelium
-work. Then Chapter 4 (integrate the swarm transport). The
+thread in `plan/` now sets the **direction**: a native P2P
+Mycelium on the log substrate that **unifies the language
+substrates** (Kafka=log, AVRO=encoding, Git=version layer,
+URI/XPath=addressing, filesystem=checkout) — see
+`streaming-fabric.md` + `observability-design.md`. Then
+Chapter 4 (integrate the swarm transport). The
 TCP path stays the local-dev transport; Hyperswarm is added,
 not substituted, until proven.
 

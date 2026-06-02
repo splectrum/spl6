@@ -33,8 +33,13 @@ Status: ⬜ pending · 🔄 in progress · ✅ done (drop when stale).
   runs where" data-driven). Then Round 2 (script test rig), Round 3 (spl on the
   cluster). Programme: `p2p-poc-roadmap.md`.
 
-- 🔄 **Design thread → Platform/Mycelium** (in `plan/`, calibrated settled-vs-open;
-  feeds the Ch5–7 Platform review):
+- 🔄 **Native P2P Mycelium — the direction** (design thread in `plan/`; pivot
+  decided). Gear toward designing & implementing Mycelium **natively P2P on the
+  log family**, because it **naturally unifies the language substrates** (Kafka =
+  log, AVRO = encoding, Git = version layer, URI/XPath = addressing, filesystem =
+  checkout). `streaming-fabric.md` is now the Mycelium direction, not just Platform
+  input. Discipline: spl6 stays fs/TCP through migration; native P2P Mycelium is
+  the Platform-era build. The notes (calibrated settled-vs-open):
   - `observability-design.md` — graduated two-tier instrumentation (production =
     detect/localize; full diagnosis in isolated probes). Thin pino-schema emitter
     **built in phase-3** (`log.js`). Open: env-driven `LOG_LEVEL` (Bare lacks env),

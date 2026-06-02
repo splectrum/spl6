@@ -79,15 +79,20 @@ avsc/avsc-rpc forks now declare deps (pushed to bare-for-pear). Next: phase-5
 (managed code distribution). Programme: `plan/p2p-poc-roadmap.md`; working list:
 `plan/tasks.md`.
 
-**Design thread → Platform/Mycelium** (in `plan/`, calibrated settled-vs-open).
-`observability-design.md` — graduated two-tier instrumentation; thin pino-schema
-emitter built in phase-3. `streaming-fabric.md` — streaming at heart;
-log-as-substrate; Kafka↔Hypercore (single-writer + Autobase, no consensus);
-storage model = native log family with the OS filesystem as a git-mirrored
-checkout, realised as a Hyperdrive cache over the git object store (tested vs
-plain `.git`); cascading-references composition; the *minimal-base /
-open-implementations* principle. Roadmap invariant: the application owns all
-runtime code.
+**Direction (pivot, recorded) — native P2P Mycelium that unifies the substrates.**
+Gear toward designing & implementing Mycelium **natively P2P on the log family**
+(not just a transport swap under the fs/TCP fabric), because it **naturally unifies
+the language substrates**: Kafka = the log, AVRO = record encoding, Git = the
+version layer, URI/XPath = addressing, filesystem = a derived checkout. So
+`streaming-fabric.md` is now the **Mycelium direction**, not just input to Platform.
+It holds: log-as-substrate; Kafka↔Hypercore (single-writer + Autobase, no
+consensus); storage model = native log family with the OS filesystem as a
+git-mirrored checkout (a Hyperdrive cache over the git object store, tested vs plain
+`.git`); cascading-references composition; the *minimal-base / open-implementations*
+principle. `observability-design.md` — graduated two-tier instrumentation; thin
+emitter built in phase-3. Roadmap invariant: the application owns all runtime code.
+**Discipline:** spl6 stays fs/TCP through the migration; the native P2P Mycelium is
+the Platform-era build.
 
 **Chapter 2 — Documentation (splectrum.world Infrastructure hub).** Substantially
 built: landing + three headings (Holepunch / In House / Ecosystem); Holepunch =
@@ -124,10 +129,11 @@ Chapter sequence (living plan: `plan/README.md`):
    the settled design on splectrum.world; carries the spl5→spl6
    retrospective) → implementation (realise it). Deferred to here
    deliberately: Platform is the most transport-entangled layer.
-   Now substantially pre-informed by the design thread
-   (`plan/streaming-fabric.md`, `plan/observability-design.md`): the review
-   inherits the log-substrate storage model, the observability model, and the
-   minimal-base / open-implementations principle.
+   Direction set (pivot): a **native P2P Mycelium on the log substrate that
+   unifies the language substrates** — the review *realises* this (inheriting
+   `plan/streaming-fabric.md`'s storage model, the observability model, and the
+   minimal-base / open-implementations principle), rather than re-deriving the
+   pillar from scratch.
 5. **Chapter 8 — Infrastructure.** Private swarm, HiveRelay,
    git-on-Hyperdrive (git-over-P2P / repos-as-Hyperdrives — elaborated in
    `plan/streaming-fabric.md`) — production infra, last.

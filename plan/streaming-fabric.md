@@ -15,6 +15,34 @@ inside out"). SPLectrum adopts this wholesale — the **stream-record** rides a 
 and Mycelium's state is a view over logs. Kafka-type guarantees are important, so
 we design *toward* them, P2P-native.
 
+## Direction — native P2P Mycelium that unifies the substrates (pivot, decided)
+
+This note is no longer just exploratory: it is the **direction for Mycelium**. We
+gear toward designing and implementing the data fabric **natively P2P on the log
+family** (Hypercore → Hyperbee / Hyperdrive), rather than only carrying the fs/TCP
+fabric forward and swapping the transport underneath.
+
+Why it's the right pivot: a native P2P Mycelium **naturally unifies the language
+substrates** — the substrate Subjects stop being separate pillars and become facets
+of one log-based fabric:
+
+- **Kafka** = the log itself (Hypercore — append-only, ordered, replayable).
+- **AVRO** = the block/record encoding + schema (records ride the log).
+- **Git** = the version layer (object store + checkout; git-over-P2P, repos-as-drives).
+- **URI / XPath** = the addressing (where + which records + into them; + sequence axis).
+- **filesystem** = a derived checkout (Hyperdrive view / git working tree).
+
+One verifiable append-only **log** as the substrate, one **URI/XPath** addressing
+model, one **AVRO** encoding — with **versioning (git)** and **streaming (Kafka)**
+as native properties. *That unification is the point.* The rest of this note designs
+that substrate; it now **drives** the Platform/Mycelium work rather than merely
+informing it.
+
+(Discipline unchanged: spl6 stays fs/TCP through the migration; the native P2P
+Mycelium is the **Platform-era** build — Round 3 POCs and the Ch5–7 design review
+ground it. And per "minimal base, open implementations" below, the unification is
+the *base*; trust / merge / multi-writer stay per-use-case implementations.)
+
 ## Design principle: minimal base, open implementations (settled)
 
 Get the **base components right and minimal**, then layer the **variable,
