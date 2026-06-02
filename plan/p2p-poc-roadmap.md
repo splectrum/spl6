@@ -5,6 +5,13 @@ each round in **phases** (a phase = a goal), each phase grown through **as many
 iterations as it takes** — we don't fix the count up front. Builds on the
 harness patterns in `p2p-test-deployment-findings.md`.
 
+**Framing (what this round is really for):** the deliverable is a *catalogue of the
+swarm's primitives for structure* — building blocks exercised and de-risked, not one
+managed-cluster feature. The living index is **`p2p-building-blocks.md`** (primitives
+× build/run/manage, with proven/open status); the remaining single-concern steps each
+*exercise one open cell and fill in the map*. Round 2 tests the blocks; Round 3 is spl
+composing them.
+
 ## Rounds (the staging)
 
 1. **Round 1 — a managed dev cluster of P2P nodes (non-spl).** *[this round]*

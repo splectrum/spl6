@@ -63,11 +63,17 @@ Status: ⬜ pending · 🔄 in progress · ✅ done (drop when stale).
   IPs/keys in committed logs), `.env` parameterised config. Module fix: avsc/avsc-rpc
   forks now declare deps (pushed to bare-for-pear); image clones them via https.
 
-  **Next (each a single-concern step):** the **worker-identity discovery model** (a
-  worker announces itself; clients select services by channel name — the option the
-  user leans toward, kept open); **live re-assignment** (manager edits the manifest →
-  workers re-pick-up without restart). Then Round 2 (script test rig), Round 3 (spl on
-  the cluster). Programme: `p2p-poc-roadmap.md`.
+  **Framing:** the round's deliverable is a *catalogue of swarm primitives for
+  structure* — see the living map **`p2p-building-blocks.md`** (primitives ×
+  build/run/manage, proven/open). Each remaining single-concern step exercises one
+  open cell and fills in the map.
+
+  **Next (single-concern steps, judged order in the map):** (1) **worker identity +
+  connect-by-key** — give the worker a keyed identity + the base "target a specific
+  node" op all management rests on (B2+R3+M1); (2) **live re-assignment** (M2); (3)
+  **pub/sub over protomux** (R9); then membership/health, mutable shared structure
+  (Hyperbee/Autobase), lifecycle. Then Round 2 (script test rig), Round 3 (spl on the
+  cluster). Programme: `p2p-poc-roadmap.md`; building blocks: `p2p-building-blocks.md`.
 
 - 🔄 **Native P2P Mycelium — the direction** (design thread in `plan/`; pivot
   decided). Gear toward designing & implementing Mycelium **natively P2P on the
