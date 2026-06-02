@@ -21,17 +21,33 @@ Status: ⬜ pending · 🔄 in progress · ✅ done (drop when stale).
     fallback; thin pino-schema observability emitter (`log.js`) folded in.
   - **phase-4-pubsub-mesh** — pub/sub 1:many, every member server+client, no hub
     (the contrast to the RPC primitive).
+  - **phase-5-managed-code (5.0)** — the cluster becomes *managed*. A manager seeds
+    role-code into a **signed Hyperdrive**; a generic worker (no business logic)
+    replicates it by the **trusted key**, pulls a role, and runs it; a client calls
+    the service — proving the worker runs distributed code (`session.jsonl`:
+    role-pulled → role-loaded → role-serving → 11 RPC triples). First use of the
+    storage stack (corestore/hyperdrive). **Trust = a signed key** is intrinsic
+    (drive key = manager's public key; deterministic from `CLUSTER_SEED`, so workers
+    are *configured* with the public key, not told it at runtime). **Two execution
+    pathways** (`EXEC`): `memory` (`new Function`, no OS disk — the **Pear-native**
+    target) and `checkout` (`bare-fs` + `require` — the deliberate **bridge into the
+    non-P2P world**: testing, hybrid). Design aim: Pear-native is the final model,
+    checkout is a first-class escape hatch (a worker materializing pulled code to run
+    is the *"filesystem as a derived checkout"* idea in miniature). Both proven.
 
   Probes committed (scrubbed run logs): holepunch-under-bare, udx-on-bridge,
   connect-via-public-dht (phase-1); avsc-rpc-under-bare, observability-under-bare
-  (phase-2). Hygiene: `scrub.sh` (masks IPs/keys in committed logs), `.env`
-  parameterised config. Module fix: avsc/avsc-rpc forks now declare deps (pushed
-  to bare-for-pear); image clones them via https.
+  (phase-2); **hyperdrive-replicate-under-bare (phase-5)** — storage stack loads +
+  replicates-by-key + both exec pathways under Bare; pinned gotchas: `libatomic.so.1`
+  (rocksdb-native needs it; absent from distroless-cc — install + copy) and
+  `findingPeers()` before `update()` on a replica. Hygiene: `scrub.sh` (masks
+  IPs/keys in committed logs), `.env` parameterised config. Module fix: avsc/avsc-rpc
+  forks now declare deps (pushed to bare-for-pear); image clones them via https.
 
-  **Next: phase-5 — managed code distribution & responsibilities** (a manager
-  seeds role-code on a Hyperdrive; nodes pull + run it, trust = signed key; "what
-  runs where" data-driven). Then Round 2 (script test rig), Round 3 (spl on the
-  cluster). Programme: `p2p-poc-roadmap.md`.
+  **Next: phase-5.1 — data-driven assignment manifest** ("what runs where": multiple
+  roles + multiple workers self-assigning from a manifest the manager publishes),
+  then 5.2 (fuller managed capstone). Then Round 2 (script test rig), Round 3 (spl on
+  the cluster). Programme: `p2p-poc-roadmap.md`.
 
 - 🔄 **Native P2P Mycelium — the direction** (design thread in `plan/`; pivot
   decided). Gear toward designing & implementing Mycelium **natively P2P on the

@@ -95,13 +95,24 @@ announces what it serves; a client resolves name→topic→peer; then a second n
 with different responsibilities + routing + the no-peer fallback. *(covers old
 3.2 / 3.3)*
 
-**Phase 4 — managed code distribution & responsibilities.** *Goal:*
+**Phase 4 — pub/sub mesh.** *Goal:* the *other* messaging primitive, for contrast
+with phase-3's RPC. Sketch: every member joins one topic `{server:true,client:true}`
+so the swarm meshes them; each publishes line-delimited JSON on an interval and
+receives the others' — one emits, the rest receive, no hub (1:many vs RPC's 1:1).
+
+**Phase 5 — managed code distribution & responsibilities.** *Goal:*
 single-concern nodes pull their own code and pick up assigned responsibilities —
 "what runs where" data-driven; the cluster becomes *managed*. Sketch: a
 `manager` seeds a Hyperdrive of role-code, a minimal node pulls + runs it
 (trust = signed key); then the manager assigns responsibilities (code + topics);
 capstone = the end-to-end demonstrator (manager + workers + client, all
-monitored).
+monitored). **Built — 5.0:** manager seeds a signed drive, a generic worker
+replicates by the trusted key and pulls + runs one role (`echo`), a client proves
+it live. Trust = a signed key is intrinsic (drive key = manager's public key,
+deterministic from a seed). Two execution pathways — `memory` (no OS disk, the
+Pear-native target) and `checkout` (`bare-fs` + `require`, the bridge into the
+non-P2P world for testing/hybrid). Next: 5.1 the data-driven assignment manifest,
+5.2 the fuller capstone.
 
 ## Carries forward
 

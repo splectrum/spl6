@@ -73,11 +73,20 @@ a private DHT; `firewalled:false` direct connect — holepunch is for NAT traver
 and fails on a no-NAT bridge), phase-2 (avsc-rpc over the encrypted stream via
 `createChannel(conn)`, the same call spl uses on TCP), phase-3 (roles & routing,
 name→topic→peer, multi-peer + no-peer fallback, thin observability emitter),
-phase-4 (pub/sub mesh — the 1:many contrast to RPC). Committed probes (scrubbed
-logs), `scrub.sh` log-masking, `.env`-parameterised config. Module fix:
-avsc/avsc-rpc forks now declare deps (pushed to bare-for-pear). Next: phase-5
-(managed code distribution). Programme: `plan/p2p-poc-roadmap.md`; working list:
-`plan/tasks.md`.
+phase-4 (pub/sub mesh — the 1:many contrast to RPC), phase-5 (managed code
+distribution, 5.0: a manager seeds role-code into a **signed Hyperdrive**; a generic
+worker replicates it by the **trusted key**, pulls + runs the role; a client calls it
+— proving the worker runs distributed code. First use of the storage stack;
+**trust = a signed key** intrinsic, deterministic from `CLUSTER_SEED`. Two execution
+pathways — `memory` (no OS disk, the **Pear-native** target) and `checkout` (`bare-fs`
++ `require`, the deliberate **bridge to non-P2P** for testing/hybrid); both proven.
+Design aim: Pear-native is the final model, checkout a first-class escape hatch).
+Committed probes (scrubbed logs) incl. `hyperdrive-replicate-under-bare` (pinned:
+`libatomic.so.1` for rocksdb-native on distroless-cc; `findingPeers()` before
+`update()`). `scrub.sh` log-masking, `.env`-parameterised config. Module fix:
+avsc/avsc-rpc forks now declare deps (pushed to bare-for-pear). Next: phase-5.1
+(data-driven assignment manifest — "what runs where"). Programme:
+`plan/p2p-poc-roadmap.md`; working list: `plan/tasks.md`.
 
 **Direction (pivot, recorded) — native P2P Mycelium that unifies the substrates.**
 Gear toward designing & implementing Mycelium **natively P2P on the log family**
