@@ -55,46 +55,30 @@ frozen at `initialise/plan.md`.
 
 ## Current State
 
-Chapter 1 (initialisation) — **migration complete**. The
-proven fabric is carried forward like-for-like and runs
-on the existing TCP transport. 73 tests pass.
+Chapter 1 (initialisation) — **complete**. The proven fabric
+is carried forward like-for-like and runs on TCP. 73 tests pass.
 
-Chapter 2 (documentation) — **in progress**, on the
-splectrum.world engineering section (repo
-`the-world-of-splectrum`). Done: the engineering-section
-structure (the substrate→platform stack, neutral
-positioning Subjects per committed language, the link
-model); the **subject phase** — Subjects for AVRO, Git,
-Kafka, URI, XPath plus their persons; and the **substrate
-layer** reworked to lean pages. Remaining: Platform/Mycelium,
-the P2P/Pear pages, Bare refresh, the spl5→spl6
-retrospective. Working notes: `plan/documentation/`.
+Chapter 2 (documentation) — **substantially complete**.
+Engineering structure, subject phase, substrate layer,
+Infrastructure hub on splectrum.world. Remaining (Pear pages,
+tools) parked.
 
-Chapter 3 (P2P POCs) — **exploratory phase complete**. A
-containerised dev cluster in `poc/p2p-docker-dev` (subtree →
-`pear-full-square`), one folder per phase: phases 0–6 (node +
-monitoring, peers connect, avsc-rpc over the swarm, roles &
-routing, pub/sub mesh, managed code distribution, reactive
-dataflow). **Every load-bearing primitive the native Mycelium
-leans on is now proven under Bare** — keyed identity +
-connect-by-key, protomux multi-channel, signed-drive
-replication, code mobility, native git (isomorphic-git, no
-fork), and reactive dataflow (live-tail → react → emit). The
-catalogue is the living map `plan/p2p-building-blocks.md`
-(primitives × build/run/manage); five committed probes hold the
-evidence. Storage floor is RocksDB (`hypercore-storage`, bundled
-in Pear).
+Chapter 3 (P2P POCs) — **complete**. Every load-bearing
+primitive proven under Bare (identity, connect-by-key, protomux,
+replication, code mobility, native git, reactive dataflow).
+Catalogue: `plan/p2p-building-blocks.md`.
 
-Chapter 4 reframed — **native Mycelium design + build** (was
-"transport swap"). The design pair is on paper
-(`plan/mycelium-streaming-layer.md` + `streaming-fabric.md`);
-first realised in **Round 3** (spl's fabric composed from the
-proven primitives), validated against the fs/TCP oracle. The
-TCP path stays the local-dev transport; the native build grows
-alongside, not as a substitution. Remaining POC cells
-(retention/availability, membership/health, fs-over-Hyperdrive
-shim, Autobase/shared-reality) are build-it-when-needed or
-deferred — not exploratory de-risking.
+Chapter 4 (Mycelium design) — **in progress**. Mycelium is a
+hybrid between the git and kafka paradigms: git for mutable
+structure, kafka for immutable data change event streams, both
+P2P-native on Hypercore/Hyperdrive. No filesystem in the native
+path — git objects + Hypercore logs are the two native data
+structures. Design: `plan/mycelium-design.md` (Round 1, opaque
+bytes). Substrate pages (git, kafka) drafted as "our brand" of
+each paradigm. Documentation rework in progress.
+
+**spl6 closes after Chapter 5** (Mycelium POC). The build-out
+is the next project.
 
 ## How We Work
 
