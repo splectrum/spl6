@@ -1,73 +1,55 @@
----
-lastmod: 2026-06-03
-title: "Mycelium"
-description: "Mycelium is SPLectrum's data fabric: a hybrid between git and kafka, both native on the P2P substrate."
-replaces: engineering/splectrum/mycelium/index.md
----
-
 # Mycelium
 
-Mycelium is SPLectrum's data fabric — the engineering foundation from which the
-other fabrics build upward. It is **a hybrid between git and kafka**, both native
-on the same P2P substrate.
+Mycelium is SPLectrum's data fabric — the engineering foundation from which
+the data repositories are built. It weaves the five substrate languages into one
+P2P native fabric.
 
-Git provides the mutable data structure: versioned tree of data entities, branching,
-merging, quality-gated state changes. Kafka provides the immutable data change event
-streams: append-only ordered logs, subscribable, replayable, atomic. Both are
-P2P-native — signed, replicated, sparse-accessible — on Hypercore/Hyperdrive.
+## Git — mutable structure
 
-Mycelium has one interaction mode: **data state propagation**. Data state changes and
-becomes visible to other data owners through the fabric. Visibility is sharing — no
-separate mechanism. Direct owner-to-owner communication is not a Mycelium concern; it
-emerges at higher levels in the SPLectrum language fabric.
+Git provides the mutable side of the fabric. The data repository — a git
+repo on the P2P substrate — is the elementary unit: identity, boundary,
+history. Data entities live as git objects (trees and blobs), versioned
+through commits, reconciled through merge. The merge layer is pluggable —
+text, record, log, schema-aware, AI-assisted — selected per data shape.
+Commit is the quality-gated state change: testing, review, AI agents
+participate natively through git's ecosystem.
 
-## The three fabrics
+## Kafka — immutable data change events
 
-Mycelium is the substrate; the language and process fabrics embed into it as metadata.
+Kafka provides the immutable side. Data change events are Kafka records
+(key + value + headers) on append-only ordered logs (topics). A record is
+atomic and self-contained. The headers are an extensible metadata surface —
+provenance, lineage, visibility travel with every record. Topics are
+single-writer, owned and maintained by the data repository that produces
+them. Other repos subscribe via topic references.
 
-- **Mycelium** (data) — where data state lives. The ground.
-- **SPLectrum** (language) — what data state means. Protocols with meaning, operators,
-  personas. Embedded as metadata in Mycelium.
-- **HAICC** (process) — how data state changes and is acted on. Human-AI
-  collaboration, process definitions, work division. Embedded as metadata in
-  Mycelium.
+## AVRO — encoding
 
-## Vocabulary
+AVRO gives structure to the data. Schema-defined binary encoding from base
+level up — the shared language for records on topics, schemas in git, type
+resolution across the fabric. Schemas co-locate in the data repository as
+versioned metadata. Active in Round 2; Round 1 operates with opaque bytes.
 
-Engineering vocabulary grounded in the seed (P0–P5).
+## URI — addressing
 
-- **Data entity** — object structure with data and associated functionality.
-- **Data owner** — holder of a set of data entities. The subject in engineering terms.
-- **Data state** — the owner's data reality, in a data repository.
-- **Data world** — totality of data state across all owners. In a P2P swarm, the data
-  world is enumerable — a full listing of all active data is achievable.
-- **Data world subview** — the total view achievable from a repo. Partial relative to
-  the data world.
-- **Protocol** — engineering artefact of a language game. An API with meaning — the
-  action vocabulary in its operators makes it a meaning unit.
-- **Operator** — protocol method.
-- **Data state propagation** — change becomes visible through the fabric. No separate
-  mechanism.
-- **Data repository / repo** — the git repository on Hypercore/Hyperdrive that
-  constitutes a data owner's reality.
-- **Topic** — a Hypercore log carrying immutable data change event records. The owning
-  repo maintains the topic; other repos subscribe.
-- **Topic reference** — a data owner's declared dependency on a remote topic.
+URI identifies what and where in the fabric. Operations — get, put, remove
+— work across three visibility modes: data (hides metadata), metadata
+(only metadata), raw (everything). The underscore prefix opens the metadata
+dimension at any node. All addressing is local, forward-only from the
+current context root. No protocol prefixes, no trailing slash. Path rebases
+on context switch.
 
-## Two cadences
+## XPath — navigation
 
-Data state propagation operates at two cadences — both the same concept at different
-tempos.
-
-**Git commit** — structural state change. Merges data structures. Durable, versioned,
-auditable. Requires a supporting quality ecosystem: testing, review, validation, AI
-agent involvement. The full git machinery applies.
-
-**Data change events** — record-level state change. Atomic. Append a record, immutable,
-done. No quality ecosystem needed. The working cadence.
+XPath navigates the fabric's structure — read-only extraction, never
+mutation. It traverses git objects, Hypercore log entries, and (when AVRO
+is active) decoded record internals as one seamless surface. Two navigation
+modes: data forward (self and descendants from local root) and functional
+backward (self and ancestors to repo root). A native engine with its own
+function set, including git and kafka read operations.
 
 ## Pages
 
-- [Fabric](fabric) — the data structure: git objects, Hypercore topics, identifier
-  grammar, the elementary data unit
-- [XPath](xpath) — addressing and navigation across both stores, visibility modes
+- [Fabric](fabric) — how URI, git and kafka topics knit together
+- [XPath](xpath) — navigation characteristics
+- [Vocabulary](vocabulary) — the engineering terms

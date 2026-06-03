@@ -19,8 +19,13 @@ no privileged central copy.
 - **Refs** — branches as named pointers to commits.
 - **Tags** — version and release markers.
 - **Commit** — the quality-gated snapshot. Parent linkage = history graph.
-- **Branch + merge** — standard 3-way merge. Divergent realities
-  reconciled.
+- **Branch + merge** — 3-way merge with a pluggable merge layer.
+  Standard text-based merge is one procedure; the wrapper enables
+  merge procedures per data shape — record/table merge (by key,
+  field-level), append-only log merge (ordering rule), schema-aware
+  merge (AVRO-decoded, Round 2+), AI-assisted semantic merge. Merge
+  procedure selected per context via metadata. Makes git a general
+  data reconciliation tool, not just text-file version control.
 - **Diff** — standard tree comparison.
 - **Log** — commit graph traversal. History inspection.
 - **.gitignore** — standard ignore rules.
