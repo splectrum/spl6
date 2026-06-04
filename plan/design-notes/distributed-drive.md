@@ -63,6 +63,35 @@ that can be compelled). This combination doesn't exist in centralised
 architectures and changes fundamental design assumptions about access
 control, replication, and trust.
 
+## Joining a swarm = mounting a drive
+
+The FUSE mount is the single entry point to a swarm. Mount the drive,
+you're in. No setup, no configuration, no service discovery, no account
+creation. One action.
+
+Multiple swarms = multiple mounted drives. Each its own trust domain, its
+own data world, its own set of data owners. Switch between them like
+switching between disks.
+
+Within each swarm, specific shared resources serve swarm-specific
+concerns — shared platform code (read-only), per-node workspaces
+(writable), shared data (via topic references).
+
+The FUSE drive is a SPLectrum component — reusable, documentable,
+the visible face of the platform to the user.
+
+## Tool mounting and the spl prefix
+
+Any tool that operates on data can be mounted on the fabric and fronted
+with `spl <namespace>`. The tool's operations become handlers in the
+namespace tree, the data lives on Hyperdrive/Hypercore, the spl CLI
+dispatches. The tool's entire knowledge base (docs, community, training
+data) stays intact — `spl git` is git, `spl xpath` is XPath.
+
+The user who knows the tool knows the `spl` version. The AI agent who
+knows the tool knows the `spl` version. The P2P substrate is invisible
+to both — same operations, same concepts, same vocabulary.
+
 ## What it exercises
 
 The distributed drive exercises the full roadmap:
