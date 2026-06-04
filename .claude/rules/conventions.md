@@ -183,6 +183,38 @@ over-elaborated (trim to settled), and drifted/open (reconcile or mark
 open). New writing concentrates on genuine gaps and the weave points, not
 re-deriving what stands.
 
+## Logical space vs implementation space
+
+Think and discuss in the logical space. Build in the implementation space.
+Don't blur the two.
+
+**Why:** Jumping to code before the design is thought through produces
+work that needs rethinking. The logical space is where design decisions
+settle — through discussion, not through writing docs or code. In the
+logical space, think a lot. Implementation gets its free run when the
+thinking is done.
+
+**How to apply:** When designing, discuss first. Don't rush to write
+documents or code. When implementing, build. The design documents and
+substrate pages are the bridge — they capture settled thinking, not
+in-progress exploration.
+
+## Aggressive simplification
+
+Remove what we don't need. If the substrate provides a capability, don't
+reimplement it. If something is optional, defer it. If it belongs to a
+different concern, don't carry it. Decentralise the design itself — each
+concern owns its own complexity.
+
+**Why:** Complexity that doesn't earn its keep slows everything down.
+The git packfile example: Hyperdrive handles storage efficiency, so git
+doesn't need packfiles. Every layer should do its own job and nothing
+more.
+
+**How to apply:** For every capability, ask: does the substrate already
+provide this? Can it be deferred until pressure surfaces? Does it belong
+in this layer or another? Strip aggressively; add back only when needed.
+
 ## Memory flow: session bank → repo
 
 Session memory is scratch space for in-flight work. Once
