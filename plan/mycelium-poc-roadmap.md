@@ -1,173 +1,158 @@
 # Mycelium POC roadmap
 
-The build path for the Mycelium data layer: git first, then kafka, with
-XPath growing alongside. Each step builds on the previous and is testable
-against it as oracle.
+The build path for the Mycelium platform. The MVP target is the
+**working-on-the-swarm experience**: mount a P2P drive, navigate repos,
+build and run tools, share data by reference. Not just proving
+infrastructure pieces — proving the platform works.
+
+## The MVP target
+
+A FUSE-mounted P2P drive that provides:
+- A shared drive backed by Hyperdrive on the swarm
+- Per-node writable workspaces, read-only shared code/platform
+- `spl <tool> ...` commands that execute on swarm-backed data
+- Apps clone their repo into a workspace, run against local state,
+  commit backs up to the swarm
+- Cross-app data sharing via topic references (single-writer, no
+  security machinery — structure is the access control)
+- Standard tool knowledge applies — `spl git` is git, `spl xpath` is
+  XPath. Mount the tool, keep the ecosystem
 
 ## Module homes
 
 - **bare-for-pear** — infrastructure modules. The isomorphic-git forks
   (fork 1 and fork 2). Forked dependencies alongside avsc, avsc-rpc, etc.
 - **pear-full-square** — P2P/Pear application code. The Mycelium git
-  component, XPath navigator, topic management. POC and production code.
+  component, XPath navigator, topic management, FUSE mount, spl CLI
+  handlers. POC and production code.
 - **splectrum** — data repos with embedded functionality. The actual
   Mycelium data repositories. Not JS source code.
 
-## Git — the migration path
+## Phase 1 — git on P2P (the foundation)
 
 ### Step 1 — bare git (done)
 
-isomorphic-git on bare-fs. Standard git operations under Bare on the OS
-filesystem. Proven in the `isomorphic-git-under-bare` probe: init, commit,
-log, working-tree reconstruction. Pure JS, no fork, ESM build.
+isomorphic-git on bare-fs under Bare. Proven in probe. ESM build
+required (the only configuration).
 
-No module to extract — isomorphic-git is an npm dependency, bare-fs is a
-Bare built-in. Just use them.
+### Step 2 — fork 1: full isomorphic-git on Hyperdrive (adapter proven)
 
-### Step 2 — fork 1: full isomorphic-git on Hyperdrive
+Fork isomorphic-git in bare-for-pear. Hyperdrive fs adapter maps 10 fs
+methods to Hyperdrive v11+ operations. Standard git (full porcelain)
+running over Hyperdrive storage.
 
-Fork isomorphic-git. Add the Hyperdrive fs adapter — a thin adapter
-(readFile, writeFile, stat, readdir, mkdir, unlink) mapping to Hyperdrive
-entry operations. Standard git (full porcelain: add, commit, checkout,
-status, log, diff, merge) running over Hyperdrive storage.
+**Proven:** probe `isomorphic-git-on-hyperdrive` — porcelain hashes match,
+plumbing hashes match, full round-trip (bare-fs → Hyperdrive → bare-fs)
+with 14 objects, all identical. Implicit directory handling fixed.
 
-**Test against:** original isomorphic-git on bare-fs (step 1). Same
-operations, same git objects, different storage backend. One variable:
-the Hyperdrive adapter.
-
-**Delivers:** standard-compatible P2P git. Useful on its own — a
-bare-for-pear module.
+**Delivers:** standard-compatible P2P git.
 
 ### Step 3 — fork 2: stripped to plumbing
 
-Clone fork 1. Strip to the plumbing API only:
-- Object operations: writeBlob, readBlob, writeTree, readTree,
-  writeCommit, readCommit, readTag, writeTag
-- Refs: resolveRef, writeRef
-- Standard 3-way text merge
-- Diff (tree comparison)
-- Log (commit graph traversal)
+Clone fork 1. Strip to plumbing only (object operations, refs, text merge,
+diff, log). Remove porcelain, HTTP transport, smart protocol, working-tree
+operations.
 
-Remove: porcelain (add, checkout, status), HTTP transport, smart protocol,
-credential handling, working-tree operations, index-file operations, and
-all utilities only those depend on.
+**Test against:** fork 1. Same objects, less code.
 
-The stripping is the learning exercise — go through the codebase,
-understand what each piece does, keep what we need, discard the rest.
+**Delivers:** the git engine.
 
-**Test against:** fork 1 on Hyperdrive (step 2). Same Hyperdrive storage,
-same object operations, less code. One variable: code removal. If the
-same git operations produce the same objects, nothing essential was removed.
+### Step 4 — Mycelium git component
 
-**Delivers:** a stripped git engine — object operations + text merge on
-Hyperdrive. The foundation for the P2P native git component.
-
-### Step 4 — Mycelium git component (new module)
-
-A new module calling into fork 2. This is Mycelium's P2P native git — the
-fabric-specific layer on top of the git engine.
-
-**Adds:**
-- The native write path (blob → tree → commit, no working tree, no index)
-- XPath-compatible tree navigation (walk trees, read blobs by hash)
-- Ref-log on Hypercore (subscribable, signed, live-tailable — data state
-  propagation at the commit cadence)
-- Pluggable merge dispatch — reads context metadata, selects the merge
-  procedure:
-  - Text-based (delegates to fork 2's standard 3-way merge)
-  - Record/table (merge by key, field-level conflict detection)
-  - Append-only log (ordering rule, no conflict)
-  - Schema-aware (AVRO-decoded, Round 2)
-  - AI-assisted (semantic merge)
-- The tracked/committed model (index as write overlay, commit as quality
-  gate)
-- Recursive repo registration (parent registers child, registration node
-  = child's repo root, child git-ignored)
+New module calling into fork 2. The fabric-specific layer:
+- Native write path (blob → tree → commit)
+- Ref-log on Hypercore (data state propagation)
+- Pluggable merge dispatch (text, record, log, schema-aware, AI-assisted)
+- Tracked/committed model
+- Recursive repo registration
 - Loose-objects-only enforcement
 
-**Test against:** fork 2 for the git engine operations (same objects, same
-hashes). Fork 1 and original as transitive oracles.
+**Delivers:** P2P native git for the fabric.
 
-**Delivers:** P2P native git for Mycelium integration.
+## Phase 2 — XPath navigator (single module, expand over time)
 
-## The chain
+A single XPath module. Starts as an MVP, grows with pressure.
 
-```
-Original isomorphic-git (bare-fs) — the oracle
-    ↑ tested against
-Fork 1: full isomorphic-git + Hyperdrive adapter — standard P2P git
-    ↑ tested against
-Fork 2: stripped to plumbing + text merge — the git engine
-    ↑ calls into
-Mycelium git component — fabric logic (new module)
-```
+### MVP — git tree navigation
 
-Each step isolates one concern: step 2 proves the adapter, step 3 proves
-the stripping, step 4 adds the fabric layer. If something breaks, you
-know which step caused it.
+Navigate a git repo's committed tree. Walk tree objects, read blob values.
+Three visibility modes (data, metadata, raw). Forward-only from root
+(self + descendants for data, self + ancestors for functional resolution).
 
-## XPath — the navigator (running thread)
+Enough to build repo-backed tools. Enough to get the P2P drive going.
 
-XPath grows alongside the infrastructure — each step validates what was
-just built. The navigator is how you verify the fabric works.
+**Test against:** bare-fs git navigation as oracle.
 
-### After git step 4 — minimal git navigator
+### Later expansions (when pressure surfaces)
 
-Navigate the git tree: walk tree objects, read blob values, the three
-visibility modes (data, metadata, raw). Forward-only from root. Self +
-descendants for data; self + ancestors for functional resolution.
+- Log navigation (offset, range, latest, tail) — when kafka topics land
+- Temporal dimension (commit history, version selection) — when needed
+- AVRO traversal (decoded record internals, header metadata) — Round 2
+- Seamless cross-store traversal (git ↔ log in one expression)
+- Custom function set (git/kafka read operations)
 
-**Test against:** bare-fs git navigation as oracle. Same paths, same
-values, different storage.
+## Phase 3 — the P2P drive
 
-**Delivers:** proof that the native git data structure is navigable
-without a filesystem.
+### FUSE mount
 
-### After kafka step 2 — add log navigation
+Hyperdrive mounted as an OS drive. The adapter we built (hyperdrive-fs)
+serves the FUSE layer. `fuse-native` for Bare. Read/write permissions
+from drive metadata — per-folder, per-node.
 
-Extend with log navigation: read at offset, range, latest. The
-sequence/time axis.
+### Per-node workspaces
 
-**Test:** one expression reaches both a git blob and a topic record.
+Each swarm node gets its own writable workspace, keyed by node identity.
+Shared platform/code folders are read-only. Working state is per-node,
+backed up by git commits to the swarm.
 
-### After integration (kafka step 4) — seamless traversal
+### spl CLI on the drive
 
-Navigate across both stores in one expression. The seam between
-git-backed and log-backed paths is invisible to navigation.
+`spl git ...`, `spl xpath ...`, `spl topic ...` — the namespace handlers
+execute against Hyperdrive-backed data. The existing spl dispatch pattern,
+same CLI, different backend. Tools mounted under `spl` carry their full
+knowledge ecosystem.
 
-**Delivers:** the unified XPath navigator for Round 1 (opaque bytes).
+### App startup
 
-## Kafka — the topic infrastructure
+Launch an app → clone the app repo into the node's workspace → run
+against local repo state → changes are git commits → commits replicate
+to the swarm. Self-contained from birth.
 
-After git. The kafka side is structurally simpler — Hypercore IS the log.
+## Phase 4 — kafka topics (when needed)
 
-### Step 1 — Kafka record on Hypercore
+The kafka side lands when the platform needs data change event streams
+beyond git commit propagation.
 
-Define the Kafka record shape (key + value + headers) as the block format
-on a Hypercore topic. Write records, read by offset, read range, read
-latest. Test: records written can be read back with the correct shape.
+### Kafka record on Hypercore
 
-### Step 2 — live-tail (subscription)
+Kafka record shape (key + value + headers) on Hypercore topics. Write,
+read by offset, range, latest.
 
-`createReadStream({live})` as the subscription mechanism. A subscriber
-sees new appends as they happen. Test: write to a topic, subscriber
-receives. The reactive data state propagation trigger.
+### Live-tail (subscription)
 
-### Step 3 — topic management
+`createReadStream({live})` as the subscription trigger. Data state
+propagation at the event cadence.
 
-Create, list, inspect topics owned by a data repository. Topic references
-(subscription declarations) as git-tracked wiring. Test: a repo declares
-a topic reference, the peer replicates it, the data is locally addressable.
+### Topic management
 
-### Step 4 — integration with Mycelium git component
+Create, list, inspect topics. Topic references as git-tracked wiring.
 
-Topic references wired to the git component. Ref-log on Hypercore
-connected. The two sides (git + kafka) operating as one fabric in a data
-repository. Test: a commit propagates via ref-log; a data change event
-propagates via topic; XPath navigates both.
+### Integration
+
+Topics wired to the git component. Ref-log on Hypercore connected.
+Both sides operating as one fabric. XPath extended to navigate both.
+
+## Phase 5 — the distributed drive application
+
+The first Mycelium application: a FUSE-mountable distributed drive with
+placement control. Built AS a data owner — git repo with configuration,
+Hypercore topics for data blocks. Retention controller, repair loop, the
+three-piece AVRO pattern (schema/handler/register). Exercises everything.
+
+See `plan/design-notes/distributed-drive.md`.
 
 ## Scope
 
-Round 1 throughout — opaque bytes. No AVRO, no schema-aware access, no
-internal structure interpretation. Get the physical data layer working
-end to end, then add the semantic layer (Round 2).
+Round 1 throughout — opaque bytes. No AVRO, no schema-aware access. Get
+the platform experience working end to end, then add the semantic layer
+(Round 2).
