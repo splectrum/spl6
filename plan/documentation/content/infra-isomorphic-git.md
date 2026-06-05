@@ -57,10 +57,3 @@ Proven via POC probe. Porcelain and plumbing operations produce identical
 commit hashes on both backends. A full round-trip (bare-fs → Hyperdrive →
 bare-fs) with 14 git objects returns identical content. Not yet exercised:
 merge, large repos, concurrent access, symlink round-trip.
-
-## Relationship to p2p-git
-
-This is the full, standard-compatible fork. [p2p-git](../p2p-git/) is the
-stripped plumbing-only version — the foundation for the Mycelium git component.
-p2p-git was created by cloning this repo and removing porcelain, network, and
-packfile code.
