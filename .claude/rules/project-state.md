@@ -4,95 +4,65 @@ Snapshot of where the work stands. Update at commit points
 when the state shifts. Reflects current reality, not history
 — the git log is the history.
 
-## Last session (2026-06-04) — implementation started + platform vision emerged
+## Last session (2026-06-04/05) — infrastructure built, mycelium module working
 
-Continued from the design session. Moved into implementation: forked
-isomorphic-git, built and proved the Hyperdrive fs adapter, stripped
-to plumbing. A platform vision emerged through the design conversation.
+Built the infrastructure stack and the mycelium base layer module.
+Proved git on Hyperdrive, FUSE mount, and CRUD + XPath over git.
+Platform vision settled. Five repos across three orgs.
 
-### Implementation progress
+### Repos created
 
-- **bare-for-pear/isomorphic-git** (fork 1) — full isomorphic-git with
-  Hyperdrive fs adapter and BARE.md. Runs on both bare-fs and Hyperdrive
-  adapters. Proven: porcelain hashes match, plumbing hashes match, full
-  round-trip (bare-fs → Hyperdrive → bare-fs, 14 objects, all identical).
-- **bare-for-pear/p2p-git** (fork 2) — stripped to plumbing only. 8,336
-  lines removed, 78 files deleted. 41 plumbing exports retained. Entry
-  point: `src/plumbing.js`. All operations pass under Bare.
-- **Key findings:** writeBlob/writeTree/writeCommit return OID strings
-  directly (not {oid}). Hyperdrive directories are implicit (mkdir/rmdir
-  are no-ops). Stats need an implicitDir flag for directories that exist
-  only as path prefixes. Merge depends on GitIndexManager (kept for now).
+**bare-for-pear/isomorphic-git** — fork 1. Full isomorphic-git + Hyperdrive
+fs adapter + BARE.md. Runs on both bare-fs and Hyperdrive. Round-trip
+proven (bare-fs → Hyperdrive → bare-fs, all objects identical).
 
-### Platform vision (emerged from design conversation)
+**bare-for-pear/p2p-git** — fork 2. Stripped to plumbing only (8,336 lines
+removed, 78 files deleted). Entry point: `src/plumbing.js`. All operations
+pass under Bare.
 
-- **Joining a swarm = mounting a FUSE drive.** One action, you're in.
-  Multiple swarms = multiple drives. Each its own trust domain.
-- **`spl <tool> ...` as universal interface.** Any tool mounted on the
-  fabric carries its full knowledge ecosystem. `spl git` is git.
-  `spl xpath` is XPath. The P2P substrate is invisible.
-- **Per-node workspaces** on the shared drive. Read-only platform code,
-  writable working folders. App startup = clone repo → run → commits
-  back up to the swarm.
-- **Cross-app data sharing** via topic references. Single-writer = no
-  security machinery needed. Structure is the access control.
-- **Privacy by structure**: an application inside a mycelium repo sees
-  only what's been internalised. The swarm handles availability.
+**pear-full-square/hyperdrive-fuse** — read-only FUSE mount for Hyperdrive
+v11. The drive is a window into the swarm. Runs under Node.js (FUSE needs
+node builtins). Interactive mode for browsing.
 
-### Naming and architecture settled
+**pear-full-square/mycelium** — the base fabric layer. CRUD + XPath over
+git. Two interfaces: internal (plain functions, throw on error) and
+external (Kafka record dispatch via mapper). Proven under Bare.
 
-- **mycelium** = one module, the base fabric layer. git + xpath + topic
-  blend as internal components, not separate named things.
-- **git's role** in the base layer = transaction/commit mechanism. For
-  high-frequency mutations, topics handle the speed; git commits are
-  the durability checkpoints. Two cadences working together.
-- **DB paradigm APIs** (tables, indexes, key-value, document, hybrid
-  components) sit on top of mycelium, slotted into the repo tree,
-  navigable by XPath like everything else.
-- **Infrastructure** (p2p-git, Hypercore) in bare-for-pear. The fabric
-  and everything above in pear-full-square.
+### Key findings
 
-### Documentation
+- writeBlob/writeTree/writeCommit return OID strings directly (not {oid})
+- Hyperdrive directories are implicit (mkdir/rmdir are no-ops, Stats needs
+  implicitDir flag)
+- FUSE handlers must be async-compatible (sync fs calls deadlock the event
+  loop)
+- fuse-native is Node.js only (requires os, fs, child_process)
+- FUSE is built into WSL2 kernel (no custom kernel needed)
+- WSL2 FUSE mounts visible from Windows via \\wsl$\
 
-- Substrate pages drafted: git, kafka, URI, XPath (logical only).
-- Mycelium pages drafted: landing, fabric, xpath, vocabulary (need
-  rethinking before handing to site agent — discussed but not final).
-- Design notes: distributed drive concept, AVRO pattern (schema/handler/
-  register), swarm-as-mounted-drive, tool mounting.
-- Roadmap reworked: MVP target = working-on-the-swarm experience.
+### Architecture settled
+
+- **mycelium** = one module blending git + xpath + (later topic + URI)
+- Internal API: plain functions (select, read, get, put, remove, commitTree)
+- External API: single Kafka record dispatch mapper at the boundary
+- Internal functions throw on fatal error — no hidden conditional routes
+- git's role = transaction mechanism; happy path only, error on conflict
+- select always returns array; will evolve to return Kafka records when
+  topics land
 
 ## Working end-to-end
 
-Carried forward from spl5 (Chapter 1 migration), running on TCP:
-
-- 6 URI protocols (raw/data/metadata × get/put/remove)
-- 6 schema-aware protocols (type resolution, into-file navigation)
-- lib/git + spl.mycelium.git (status, log, diff, add, commit, push, pull, subtree ops)
-- lib/rpc-server (server lifecycle, PID, IPC, logging)
-- Two-reality model, multi-client identity, CLI context aliases
-- Help handler, CLI global flag framework
-- Test suite: 73 tests passing
-- 5 subtrees re-registered
+Chapter 1 migration on TCP: 73 tests passing. Unchanged.
 
 ## In progress
 
-**Chapter 4 — Mycelium design + implementation (active).** Design
-settled (Round 1 opaque bytes). Infrastructure modules in progress:
-isomorphic-git fork proven (adapter + round-trip), p2p-git stripped
-and proven. Next: the mycelium module (combined git component + XPath
-navigator MVP) in pear-full-square.
-
-Code baseline unchanged — Chapter 1 migration end-state, 73 tests
-green on TCP.
+**Documentation.** Document the work done: infrastructure modules, probes,
+mycelium module, the repos, the architecture decisions.
 
 ## Next up
 
-1. **mycelium module** — the base fabric layer in pear-full-square.
-   Git component (calls p2p-git) + XPath navigator MVP (git tree
-   navigation, three visibility modes). One module, one step.
-2. **Remaining step 4 items** — ref-log on Hypercore, pluggable merge,
-   repo registration. After navigation core works.
-3. **FUSE mount + P2P drive** — the platform experience. After the
-   base fabric is navigable.
-4. **Kafka topics** — when the platform needs data change event streams.
-5. **Chapter 5 — Mycelium POC** closes spl6.
+1. **Documentation** — capture the settled work across all repos
+2. **Swarm app** — join a swarm, expose a read-only FUSE drive with
+   available apps. Like an install experience. WSL2 as the local peer,
+   Docker containers as swarm peers, private DHT on localhost.
+3. **Kafka topics** — when the platform needs data change event streams
+4. **Chapter 5 — Mycelium POC** closes spl6
