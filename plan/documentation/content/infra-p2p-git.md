@@ -1,14 +1,15 @@
 ---
 lastmod: 2026-06-05
-title: "p2p-git — Stripped Git Plumbing"
-description: "isomorphic-git stripped to plumbing only — the git engine for Mycelium. No porcelain, no network, no packfiles."
+title: "p2p-git — Minimal Git Engine for Embedding"
+description: "isomorphic-git stripped to a minimal footprint for embedding in P2P applications. Transaction model via the git index."
 location: engineering/infrastructure/bare-for-pear/p2p-git/index.md
 ---
 
-# p2p-git — Stripped Git Plumbing
+# p2p-git — Minimal Git Engine for Embedding
 
-isomorphic-git stripped to the plumbing API. Object operations, refs, merge,
-log, walk — and nothing else. The git engine for Mycelium.
+isomorphic-git stripped to a minimal footprint for embedding. Object
+operations, refs, index, merge, log, walk. No porcelain, no network,
+no packfiles, no working tree.
 
 **Source:** [bare-for-pear/p2p-git](https://github.com/bare-for-pear/p2p-git)
 
@@ -16,64 +17,71 @@ log, walk — and nothing else. The git engine for Mycelium.
 
 ## What It Does
 
-Git object-level operations as a stripped, P2P-ready engine. 41 exports from
-the original 70. 8,336 lines removed, 78 files deleted.
+Git object-level operations as a stripped, embeddable engine. 42 exports
+from the original 70. 8,336 lines removed, 78 files deleted.
 
-**Object operations:** readBlob, writeBlob, readTree, writeTree, readCommit,
-writeCommit, readTag, writeTag, readObject, writeObject, hashBlob.
+Designed for P2P applications where the object store lives on any
+pluggable fs backend (bare-fs, Hyperdrive, or other). The embedder
+provides storage; p2p-git provides git operations.
 
-**Refs:** resolveRef, writeRef, expandRef, expandOid, deleteRef, listBranches,
-listTags, listRefs, currentBranch.
+## Transaction Model
 
-**Branching:** branch, deleteBranch, tag, deleteTag.
+Git's index is the transaction staging area:
 
-**History:** log, findMergeBase, isDescendent.
+1. **writeBlob** — content into the object store, returns OID
+2. **updateIndex** — stage the change (path → blobOid in the index)
+3. Repeat — all changes staged in the index
+4. **commit** — the index becomes a committed tree, transaction closes
 
-**Merge:** merge (3-way text merge).
+The index persists — it survives crashes. Staged but uncommitted changes
+can be committed later. No working tree, no `git add`. Blobs created
+directly, index updated directly.
 
-**Navigation:** walk, TREE.
+## No Working Tree
 
-Entry point: `src/plumbing.js`.
+The standard git workflow (edit files → add → commit) is replaced by direct
+object construction. There is no filesystem working tree, no `git add`
+reading from disk, no filesystem dependency for git operations. Suitable for
+environments where the object store lives on Hyperdrive or other P2P storage
+with no local filesystem.
 
 ## What Was Removed
 
-Everything the P2P substrate provides natively or Mycelium doesn't need:
-
-- **Porcelain** — add, checkout, status, clone, fetch, pull, push, stash,
-  cherry-pick, notes. The working-tree workflow is not used in the P2P
-  native path.
+- **Porcelain** — add, checkout, status, clone, fetch, pull, push, stash.
+  The working-tree workflow is not needed for embedded use.
 - **Network** — HTTP transport, smart protocol, remote management. Object
-  exchange uses Hyperdrive sparse replication.
-- **Packfiles** — pack index, packed object storage. Loose objects only —
-  each object is a single drive entry, individually replicable.
+  exchange is the embedder's concern.
+- **Packfiles** — loose objects only, each individually addressable.
 - **Working tree** — WORKDIR/STAGE walkers, .gitignore handling.
-- **Shallow clones** — replaced with empty sets (no shallow support needed).
+- **Shallow clones** — replaced with empty sets.
+
+## What Remains
+
+**Objects:** readBlob, writeBlob, readTree, writeTree, readCommit,
+writeCommit, readTag, writeTag, readObject, writeObject, hashBlob.
+**Index:** updateIndex. **Refs:** resolveRef, writeRef, expandRef,
+expandOid, deleteRef, listBranches, listTags, listRefs, currentBranch.
+**Branching:** branch, deleteBranch, tag, deleteTag. **History:** log,
+findMergeBase, isDescendent. **Merge:** merge (3-way text).
+**Navigation:** walk, TREE. **Config and utility:** getConfig, setConfig,
+init, findRoot, listFiles, version.
 
 ## Design Decisions
 
 **Stubs over removal for entangled dependencies.** GitPackedRefs and
-GitRefSpecSet are stubbed (return empty) rather than removed, because
-GitRefManager references them throughout. The stubs are safe — loose-objects-
-only mode never has packed refs, and no remotes means no refspecs. A deeper
-refactor can remove the entanglement when pressure surfaces.
+GitRefSpecSet are stubbed rather than removed — GitRefManager references
+them throughout. Safe because loose-objects-only never has packed refs.
 
-**Merge retains the index dependency.** Git's merge implementation uses the
-index to track 3-way merge state. Removing the index would require rewriting
-merge. Kept as-is — merge is the most valuable complex operation to retain.
+**Merge retains the index dependency.** Git's merge uses the index to
+track 3-way merge state. Removing it would require rewriting merge. Kept
+as-is.
 
-**The stripping was the learning exercise.** Every removed file was understood
-before removal. The dependency structure is mapped and the remaining code is
-known well enough to continue stripping or refactoring confidently.
+**The stripping was the learning exercise.** Every removed file was
+understood before removal. The dependency structure is mapped. Further
+stripping can proceed confidently when pressure surfaces.
 
 ## Current State
 
-Proven under Bare. All 41 plumbing operations tested: init, write/read
-blob/tree/commit, refs, log, walk, branch, listBranches. Not yet exercised:
-merge, diff, tag operations, large repos.
-
-## Intention
-
-Foundation for the [Mycelium](https://github.com/pear-full-square/mycelium)
-git component. Mycelium calls into p2p-git for object operations and wraps
-it with fabric semantics. Further stripping may continue as the Mycelium
-component matures.
+Proven under Bare. 42 plumbing operations tested. Not yet exercised:
+merge, diff, tag operations, the updateIndex → commit flow end-to-end,
+large repos.
