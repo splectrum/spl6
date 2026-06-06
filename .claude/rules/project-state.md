@@ -87,9 +87,5 @@ In `plan/documentation/content/` — not yet submitted to site:
 1. **Swarm app** — join a swarm, expose a read-only FUSE drive with
    available apps. Like an install experience. WSL2 as the local peer,
    Docker containers as swarm peers, private DHT on localhost.
-2. **Substrate pages** — submit our brand of git, kafka, URI, XPath
-   to the site (needs proper discussion first)
-3. **Mycelium pages** — rethink and submit (landing, fabric, xpath,
-   vocabulary)
-4. **Kafka topics** — when the platform needs data change event streams
-5. **Chapter 5 — Mycelium POC** closes spl6
+2. **spl7 preliminary plan** — shape the next project's scope and carry-forward items
+3. **spl6 closure** — wrap up, final state, hand off to spl7

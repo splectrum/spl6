@@ -8,27 +8,29 @@ Status: ⬜ pending · 🔄 in progress · ✅ done (drop when stale).
 
 ## In progress
 
-- 🔄 **Chapter 4 — Mycelium design.** Proper design of the native Mycelium fabric.
-  The exploratory notes (`mycelium-streaming-layer.md`, `streaming-fabric.md`) and
-  the proven POC primitives (`p2p-building-blocks.md`) are input — the design is a
-  fresh exercise that grounds spl's proven core onto the log substrate. Deliverable:
-  a design document clear enough to build a POC against.
+- 🔄 **Chapter 4 — Mycelium design.** Round 1 (opaque bytes) design doc written
+  (`plan/mycelium-design.md`). Round 2 (AVRO/semantic layer) deferred to spl7.
 
 ## Queued
 
-- ⬜ **Chapter 5 — Mycelium POC.** Prove the Chapter 4 design — the fabric's core
-  running, validated against the fs/TCP oracle. Scope shaped by the design.
+- ⬜ **Swarm app.** Join a swarm, expose a read-only FUSE drive with available apps.
+  WSL2 as local peer, Docker containers as swarm peers, private DHT on localhost.
+- ⬜ **spl7 preliminary plan.** Shape the next project's scope and carry-forward items.
+- ⬜ **spl6 closure.** Wrap up, final state, hand off to spl7.
 
 ## Done (spl6)
 
 - ✅ **Chapter 1 — Initialisation.** Migration baseline; 73 tests green on TCP.
 - ✅ **Chapter 2 — Documentation.** Engineering structure, subject phase, substrate
-  layer, Infrastructure hub on splectrum.world. Remaining (Pear pages, tools) parked.
+  layer, Infrastructure hub on splectrum.world.
 - ✅ **Chapter 3 — P2P transport POCs.** Every load-bearing primitive proven under
-  Bare. Six phases (0–6), five committed probes. Catalogue: `p2p-building-blocks.md`.
+  Bare. Catalogue: `p2p-building-blocks.md`.
 
-## Parked (carries forward to the next project)
+## Carries forward to spl7
 
+- ⬜ Mycelium POC — prove the Chapter 4 design against the fs/TCP oracle
+- ⬜ Mycelium design Round 2 — AVRO, schema-aware XPath/URI, schema evolution
+- ⬜ Kafka topics — data change event streams
 - ⬜ Pear documentation pages (splectrum.world)
 - ⬜ Platform pillar design review + documentation (three-pillar distillation)
 - ⬜ Infrastructure (private swarm, HiveRelay, git-on-Hyperdrive)
