@@ -4,88 +4,79 @@ Snapshot of where the work stands. Update at commit points
 when the state shifts. Reflects current reality, not history
 — the git log is the history.
 
-## Last session (2026-06-04/05) — infrastructure built, mycelium module working
+## Last session (2026-06-06) — swarm app phases 3-6 built and proven
 
-Built the infrastructure stack and the mycelium base layer module.
-Proved git on Hyperdrive, FUSE mount, and CRUD + XPath over git.
-Platform vision settled. Five repos across three orgs.
+Extended the swarm app from basic seed/peer with browser UI to a full
+architecture with apps, FUSE drives, local execution, and per-node
+visibility. Design doc settled: container as trust boundary, FUSE drive
+as user interface, filesystem as app contract.
 
-### Repos created
+### Swarm app — what's proven
 
-**bare-for-pear/isomorphic-git** — fork 1. Full isomorphic-git + Hyperdrive
-fs adapter + BARE.md. Runs on both bare-fs and Hyperdrive. Round-trip
-proven (bare-fs → Hyperdrive → bare-fs, all objects identical).
+**Phase 1+2** (committed earlier) — seed node (DHT + Hyperdrive +
+persistent volume), peer node (join + replicate), browser UI SPA with
+dashboard, node switcher, drive browser, status views.
 
-**bare-for-pear/p2p-git** — fork 2. Stripped to plumbing only (8,336 lines
-removed, 78 files deleted). Entry point: `src/plumbing.js`. All operations
-pass under Bare.
+**Phase 3** — apps on the drive. Registry + three demo apps (hello,
+drive-stats, peer-ping). `/api/run` loads app source from Hyperdrive,
+evals it. Apps tab in browser UI. Code mobility proven: peer runs code
+replicated from seed.
 
-**pear-full-square/hyperdrive-fuse** — read-only FUSE mount for Hyperdrive
-v11. The drive is a window into the swarm. Runs under Node.js (FUSE needs
-node builtins). Interactive mode for browsing.
+**Phase 4+5** — FUSE drive + local execution. Container runs Node.js
+(for FUSE via fuse-native) alongside bare. Single process, same drive
+object, no lock conflicts. FUSE projected to host via rshared bind mount
+(requires `sudo mount --make-rshared /` on WSL2). Drive carries
+executable apps at `/apps/`; bare binary overlaid from container image
+onto FUSE at `/bin/bare` (not replicated via Hyperdrive — keeps sync
+fast). Proven: `ls` the drive from host, run an app with bare from the
+mount, no install.
 
-**pear-full-square/mycelium** — the base fabric layer. CRUD + XPath over
-git. Two interfaces: internal (plain functions, throw on error) and
-external (Kafka record dispatch via mapper). Proven under Bare.
-
-### Key findings
-
-- writeBlob/writeTree/writeCommit return OID strings directly (not {oid})
-- Hyperdrive directories are implicit (mkdir/rmdir are no-ops, Stats needs
-  implicitDir flag)
-- FUSE handlers must be async-compatible (sync fs calls deadlock the event
-  loop)
-- fuse-native is Node.js only (requires os, fs, child_process)
-- FUSE is built into WSL2 kernel (no custom kernel needed)
-- WSL2 FUSE mounts visible from Windows via \\wsl$\
+**Phase 6** — world view drive. Each node gets its own writable
+Hyperdrive (separate corestore namespace). Periodic status/peer updates,
+app execution logging to `/runs/`. Exposed via API (`/api/world/*`),
+FUSE on host (`mnt/*/world/`), and World View tab in browser UI.
 
 ### Architecture settled
 
-- **mycelium** = one module blending git + xpath + (later topic + URI)
-- Internal API: plain functions (select, read, get, put, remove, commitTree)
-- External API: single Kafka record dispatch mapper at the boundary
-- Internal functions throw on fatal error — no hidden conditional routes
-- git's role = transaction mechanism; happy path only, error on conflict
-- select always returns array; will evolve to return Kafka records when
-  topics land
+- **Node container** = general-purpose swarm membership manager. One
+  container per membership. Handles connectivity, replication, keys, API.
+- **FUSE drive** = the user interface. Filesystem is the app contract —
+  any language, any runtime.
+- **Two tiers**: container-side (node internals, credentials, swarm) and
+  host-side (user tools, bare, apps via FUSE). Container is the engine,
+  FUSE is the steering wheel.
+- **Security model**: container is trust boundary. Private key never
+  leaves node process. Apps write through FUSE/API — node validates and
+  signs. Untrusted code outside, trusted code inside.
+- **Holepunch stack works on Node.js** — Hyperswarm, HyperDHT, Corestore,
+  Hyperdrive all load and run under Node.js, not only bare.
+- **Corestore namespaces** for multiple drives per node
+  (`store.namespace('world')`).
+- **FUSE overlay** — local files (e.g. bare binary) served alongside
+  drive content without storing on Hyperdrive.
+
+### Key findings this session
+
+- `Hyperdrive(store, { name: 'world' })` hangs — use
+  `store.namespace('world')` for multiple drives per corestore
+- Shebang lines (`#!`) break `new Function` eval — strip before running
+  via API
+- `module.parent` is null in `new Function` context — use `__filename`
+  guard for dual-mode apps (direct exec vs require)
+- Docker rshared bind mounts need `sudo mount --make-rshared /` on WSL2
+- Stale FUSE mount points cause "transport endpoint not connected" — 
+  entrypoint must `fusermount -u` before `mkdir`
+- 90MB bare binary on Hyperdrive kills peer sync — overlay from container
+  image instead
 
 ## Working end-to-end
 
 Chapter 1 migration on TCP: 73 tests passing. Unchanged.
 
-## In progress
-
-**Documentation.** Document the work done: infrastructure modules, probes,
-mycelium module, the repos, the architecture decisions.
-
-### Documentation completed
-
-- READMEs for all four new repos (isomorphic-git, p2p-git, hyperdrive-fuse,
-  mycelium)
-- Site pages created for all new modules via content prompts (processed by
-  site agent — bare-for-pear and pear-full-square landing pages updated,
-  individual module pages created)
-- MIT licenses on all repos (dual copyright where built on upstream)
-- Org profiles for all three GitHub orgs (splectrum, bare-for-pear,
-  pear-full-square)
-- Upstream CI workflows removed from both forks
-- p2p-git: updateIndex restored (transaction staging), README reframed as
-  "minimal git engine for embedding" with transaction model (writeBlob →
-  updateIndex → commit)
-
-### Substrate and Mycelium content pages (in progress)
-
-In `plan/documentation/content/` — not yet submitted to site:
-- substrate-git.md, substrate-kafka.md, substrate-uri.md, substrate-xpath.md
-  (our brand of each paradigm, adoption scope)
-- mycelium-index.md, mycelium-fabric.md, mycelium-xpath.md,
-  mycelium-vocabulary.md (first-pass, need rethinking)
-- mycelium-overview.md (bullet-point working doc)
-
 ## Next up
 
-1. **Swarm app** — join a swarm, expose a read-only FUSE drive with
-   available apps. Like an install experience. WSL2 as the local peer,
-   Docker containers as swarm peers, private DHT on localhost.
-2. **spl7 preliminary plan** — shape the next project's scope and carry-forward items
-3. **spl6 closure** — wrap up, final state, hand off to spl7
+1. **Swarm app phase 7** — read-write FUSE, boundary validation. Write
+   from host through FUSE, node validates and signs, replicates to swarm.
+2. **spl7 preliminary plan** — shape the next project's scope and
+   carry-forward items.
+3. **spl6 closure** — wrap up, final state, hand off to spl7.
