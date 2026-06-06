@@ -4,18 +4,17 @@ Snapshot of where the work stands. Update at commit points
 when the state shifts. Reflects current reality, not history
 — the git log is the history.
 
-## Last session (2026-06-06) — swarm app phases 3-6 built and proven
+## Last session (2026-06-06) — swarm app complete (all 7 phases)
 
-Extended the swarm app from basic seed/peer with browser UI to a full
-architecture with apps, FUSE drives, local execution, and per-node
-visibility. Design doc settled: container as trust boundary, FUSE drive
-as user interface, filesystem as app contract.
+Built the swarm app end-to-end: apps with code mobility, FUSE drives
+(read-write) on the host, local execution with bare, per-node world
+view, and settled architecture. Design doc captures the full model.
 
 ### Swarm app — what's proven
 
-**Phase 1+2** (committed earlier) — seed node (DHT + Hyperdrive +
-persistent volume), peer node (join + replicate), browser UI SPA with
-dashboard, node switcher, drive browser, status views.
+**Phase 1+2** — seed node (DHT + Hyperdrive + persistent volume), peer
+node (join + replicate), browser UI SPA with dashboard, node switcher,
+drive browser, status views.
 
 **Phase 3** — apps on the drive. Registry + three demo apps (hello,
 drive-stats, peer-ping). `/api/run` loads app source from Hyperdrive,
@@ -35,6 +34,11 @@ mount, no install.
 Hyperdrive (separate corestore namespace). Periodic status/peer updates,
 app execution logging to `/runs/`. Exposed via API (`/api/world/*`),
 FUSE on host (`mnt/*/world/`), and World View tab in browser UI.
+
+**Phase 7** — read-write FUSE. Write ops (create, write, truncate,
+unlink, mknod) with buffered writes flushed on release. Proven from
+host: touch creates files, echo/cp writes content, lands on Hyperdrive,
+visible via API and browser UI.
 
 ### Architecture settled
 
@@ -68,15 +72,17 @@ FUSE on host (`mnt/*/world/`), and World View tab in browser UI.
   entrypoint must `fusermount -u` before `mkdir`
 - 90MB bare binary on Hyperdrive kills peer sync — overlay from container
   image instead
+- FUSE write: bash `>` redirect doesn't create new files (kernel doesn't
+  call `create` after `getattr` ENOENT on some versions); `touch` first
+  then write works, as does Python `os.open` with O_CREAT
 
 ## Working end-to-end
 
 Chapter 1 migration on TCP: 73 tests passing. Unchanged.
+Swarm app: all 7 phases proven. Design: `phase-7-swarm-app/design.md`.
 
 ## Next up
 
-1. **Swarm app phase 7** — read-write FUSE, boundary validation. Write
-   from host through FUSE, node validates and signs, replicates to swarm.
-2. **spl7 preliminary plan** — shape the next project's scope and
+1. **spl7 preliminary plan** — shape the next project's scope and
    carry-forward items.
-3. **spl6 closure** — wrap up, final state, hand off to spl7.
+2. **spl6 closure** — wrap up, final state, hand off to spl7.
