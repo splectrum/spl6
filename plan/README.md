@@ -1,53 +1,41 @@
-# spl6 Plan — living
+# spl6 Plan — closed
 
-The working plan for spl6, organised so each part can evolve as we
-execute. The original seed plan is frozen at `initialise/plan.md`; this
-folder is the source of truth from here on.
+spl6 is complete. This repo is a read-only reference for spl7.
+The original seed plan is frozen at `initialise/plan.md`.
 
 ## How this folder is organised
 
-- **`overview.md`** — context, landscape, and the unified approach
-  (the why/what). Stable.
-- **`chapters/`** — one file per chapter; the executable plan and its
-  status. Chapters evolve here as they're worked.
-- **`open-questions/`** — decisions deferred for later, one per file,
-  each noting *when* it should be addressed.
+- **`overview.md`** — context, landscape, and the unified approach.
+- **`chapters/`** — one file per chapter.
+- **`open-questions/`** — decisions deferred, one per file.
 - **`tools/`** — specs for candidate spl tools surfaced along the way.
-- **`references.md`** — running list of external resources (not vetted).
-- **`documentation/`** — working notes/decisions for the splectrum.world
-  docs workstream (engineering-section structure, etc.).
+- **`references.md`** — running list of external resources.
+- **`documentation/`** — working notes for the splectrum.world workstream.
+- **`mycelium-design.md`** — Round 1 design (key reference for spl7).
+- **`p2p-building-blocks.md`** — POC catalogue (key reference for spl7).
+- **`swarm-picture.md`** — swarm operating model synthesis.
+- **`spl7-preliminary.md`** — spl7 scope and approach.
 
-## Current status (2026-06-05)
+## Final status (2026-06-08)
 
 | Chapter | State |
 |---|---|
-| 1 — Initialisation | ✅ complete (migration baseline + spl6 identity; 73 tests green on TCP) |
-| 2 — Documentation | ✅ complete — engineering structure, subject phase, substrate layer, Infrastructure hub. Repos, licenses, org profiles done |
-| 3 — P2P transport POCs | ✅ complete — every load-bearing primitive proven under Bare. Catalogue: `p2p-building-blocks.md` |
-| 4 — Mycelium design | 🔄 Round 1 (opaque bytes) written (`mycelium-design.md`). Round 2 (AVRO/semantic) deferred to spl7 |
-| Swarm app | ⬜ next — join a swarm, FUSE drive with available apps, WSL2 + Docker peers, private DHT |
+| 1 — Initialisation | ✅ complete — migration baseline; 73 tests green on TCP |
+| 2 — Documentation | ✅ complete — engineering structure, subject phase, substrate layer, Infrastructure hub |
+| 3 — P2P transport POCs | ✅ complete — every primitive proven under Bare. Catalogue: `p2p-building-blocks.md` |
+| 4 — Mycelium design | ✅ complete — Round 1 design + substrate pages reworked. Round 2 deferred to spl7 |
+| Swarm app | ✅ complete — all 7 phases. Design: `phase-7-swarm-app/design.md` |
 
-**spl6 closes after the swarm app.** spl6's arc: migrate the proven
-fabric → explore the P2P substrate → design Mycelium (Round 1) → prove
-the swarm primitives compose into a working app. Mycelium POC and the
-build-out carry forward to spl7.
+**spl6's arc:** migrate the proven fabric → explore the P2P substrate →
+design Mycelium (Round 1) → prove the swarm primitives compose into a
+working app. Done.
 
-### Carries forward to spl7
+**spl7** picks up at `~/splectrum/spl7`. Workspace repos at
+`~/pear-full-square/` (mycelium, hyperdrive-fuse).
 
-- Mycelium POC — prove the Chapter 4 design against the fs/TCP oracle
-- Mycelium design Round 2 — AVRO, schema-aware XPath/URI, schema evolution
-- Kafka topics — data change event streams
-- Pear documentation pages (splectrum.world)
-- Platform pillar design review + documentation (the three-pillar distillation)
-- Infrastructure (private swarm, HiveRelay, git-on-Hyperdrive)
-- Doc-freshness agent, ecosystem discovery
-- Backlog: harness-as-direct-RPC-client, context stream types,
-  test runner auto-start/stop, CLI help rendering
-
-## Open questions
+## Open questions (carried forward)
 
 See `open-questions/`:
 - `test-strategy.md`
-- `client-server-resolution.md` — global `spl` as client-side resolver;
-  carries forward to the next project
+- `client-server-resolution.md` — global `spl` as client-side resolver
 - `bare-for-pear-contribution.md`
